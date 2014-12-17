@@ -3,7 +3,6 @@ package soundcloud.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -19,10 +18,6 @@ public class SoundCloudStarter {
 			BufferedReader read = new BufferedReader(
 									new InputStreamReader(socket_serv.getInputStream())
 									);
-			String line;
-			while((line = read.readLine())!=null){
-				System.out.println(line);
-			}
 			socket_serv.close();
 			serv.close();
 		} catch (IOException e) {

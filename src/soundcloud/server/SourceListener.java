@@ -7,19 +7,34 @@
  */
 package soundcloud.server;
 
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class SourceListener implements Runnable {
+public class SourceListener implements Runnable{
 
 	private PriorityBlockingQueue<Message> queue;
+	private ServerSocket servSocket;
+	private Socket socket;
 
-	public SourceListener(PriorityBlockingQueue<Message> queue){
+	/**
+	 * Constructor. Will create a source listener with respect to the given queue and the given port.
+	 * @param queue queue, where messages should be stored.
+	 * @param port port, where the listener wants to listen to.
+	 */
+	public SourceListener(PriorityBlockingQueue<Message> queue, int port){
 		
 	}
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
 
+	@Override
+	/**
+	 * Method to start the Executor. The Listener will read & parse an incoming message and store it into the
+	 * queue.
+	 */
+	public void run() {
+		
 	}
 
 }

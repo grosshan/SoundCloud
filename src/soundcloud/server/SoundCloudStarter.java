@@ -1,3 +1,7 @@
+/**
+ * This is the class that will build up the whole bunch of threads and object that are need
+ * to solve the back-end challenge from SoundCloud
+ */
 package soundcloud.server;
 
 import java.io.BufferedReader;
@@ -8,6 +12,10 @@ import java.net.Socket;
 
 public class SoundCloudStarter {
 
+	/**
+	 * Just the main method
+	 * @param args command-line arguments are ignored at this point.
+	 */
 	public static void main(String[] args) {
 		try {
 			System.out.println("Start Server");

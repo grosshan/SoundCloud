@@ -17,18 +17,35 @@ public class UserRegistry {
 	private HashMap<Integer, User> registry;
 	private ReentrantLock lock;
 	
+	/**
+	 * standard constructor
+	 */
+	public UserRegistry(){
+		
+	}
+	
+	/**
+	 * searches for a user with given id. Returns null if a user was not found.
+	 * @param id user-id to search for
+	 * @return user that corresponds to the id or null if no such user exists.
+	 */
 	public User getUser(int id){
 		return null;
 	}
 	
-	public void registerUser(int id, Socket socket){
-		
-	}
-	
+	/**
+	 * Register a new user in registry with given id. <THREAD SAFE>
+	 * @param id
+	 */
 	public void registerUser(int id){
 		
 	}
 
+	/**
+	 * Searches for a specific user in the registry
+	 * @param id user-id to search for
+	 * @return true if a user was found, false otherwise.
+	 */
 	public boolean hasUser(int id){
 		return getUser(id) == null;
 	}

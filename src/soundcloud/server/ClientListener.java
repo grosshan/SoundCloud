@@ -8,12 +8,28 @@
 
 package soundcloud.server;
 
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.List;
+
 public class ClientListener implements Runnable {
 
 	private UserRegistry registry;
-	public ClientListener(UserRegistry registry){
+	private ServerSocket servSocket;
+	
+	/**
+	 * Creates a Listener. Listener opens server socket at given port.
+	 * 
+	 * @param registry Registry, where users will be registered.
+	 * @param port Listener will accept user requests on this given port.
+	 */
+	public ClientListener(UserRegistry registry, int port){
 		
 	}
+	
+	/**
+	 * Runs this thread. Listener accepts user clients and register them in user registry. 
+	 */
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub

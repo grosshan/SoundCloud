@@ -111,6 +111,7 @@ public class UserTest {
 			u1_listen.socket.close();
 			u1_listen.serv_socket.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}

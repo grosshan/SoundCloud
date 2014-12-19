@@ -8,6 +8,8 @@
 package soundcloud.server;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class User {
 	private int myID;
 
 	private Socket mySocket;
+	private PrintWriter myWriter;
 	private ReentrantLock myLock;
 	
 	private ArrayDeque<Message> messages;
@@ -30,9 +33,12 @@ public class User {
 	 */
 	public User(int id, int numMessages){
 		myID = id;
-		
 		messages = new ArrayDeque<Message>(numMessages);
 		followers = new ArrayList<User>();
+		myLock = new ReentrantLock();
+		
+		mySocket = null;
+		myWriter = null;
 	}
 
 	/**
@@ -48,7 +54,7 @@ public class User {
 	 * @return ArrayList of followers
 	 */
 	public ArrayList<User> getFollowers(){
-		return null;
+		return followers;
 	}
 	
 	/**
@@ -56,21 +62,21 @@ public class User {
 	 * @return ArrayList of followers
 	 */
 	public ArrayDeque<Message> getMessages(){
-		return null;
+		return messages;
 	}
 
 	/**
 	 * lock this user
 	 */
 	public void lock(){
-
+		myLock.lock();
 	}
 	
 	/**
 	 * unlock this user
 	 */
 	public void unlock(){
-		
+		myLock.unlock();
 	}
 	
 	/**
@@ -78,7 +84,7 @@ public class User {
 	 * return true, if and only if the user is locked
 	 */
 	public boolean isLocked(){
-		return false;
+		return myLock.isLocked();
 	}
 
 	/**
@@ -88,6 +94,7 @@ public class User {
 	 */
 	public void openConnection(Socket socket) throws IOException{
 		mySocket = socket;
+		myWriter = new PrintWriter(new OutputStreamWriter(mySocket.getOutputStream()));
 	}
 	
 	/**
@@ -95,14 +102,19 @@ public class User {
 	 * @throws IOException Connection could not be closed.
 	 */
 	public void closeConnection() throws IOException{
-		
+		mySocket.close();
+		mySocket = null;
+		myWriter.close();
+		myWriter = null;
 	}
 	/**
 	 * Add a follower to this user. If the user is already a follower this request will be ignored. 
 	 * @param follower the new follower
 	 */
 	public void addFollower(User follower) {
-		
+		if(!followers.contains(follower)){
+			followers.add(follower);
+		}
 	}
 	
 	/**
@@ -110,7 +122,7 @@ public class User {
 	 * @param follower that should be removed
 	 */
 	public void removeFollower(User follower){
-		
+		followers.remove(follower);
 	}
 	
 	/**
@@ -119,7 +131,13 @@ public class User {
 	 * @param message message to be sent
 	 */
 	public void sendMessage(Message message){
-		
+		if(mySocket == null || mySocket.isClosed() ||
+				!mySocket.isConnected() || !mySocket.isBound()){
+			messages.add(message);
+		} else {
+			myWriter.print(message.getPayload());
+			myWriter.flush();
+		}
 	}
 
 	/**
@@ -129,7 +147,7 @@ public class User {
 	 */
 	@Override
 	public boolean equals(Object o){
-		return false;
-		
+		if (!(o instanceof User)) return false;
+		return ((User)o).myID == this.myID;
 	}
 }

@@ -37,6 +37,7 @@ public class SourceListenerTest {
 			
 			socket.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 	}

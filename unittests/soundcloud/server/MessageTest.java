@@ -19,7 +19,7 @@ public class MessageTest {
 			Message m2 = new Message("1|U|12|9");
 			assertEquals(m2.getType(),Message.MessageType.Unfollow);
 			assertEquals(m2.getSource(),12);
-			assertEquals(m2.getTarget(),9);
+			assertEquals(m2.getPayload(),"1|U|12|9");
 
 			Message m3 = new Message("542532|B");
 			assertEquals(m3.getType(),Message.MessageType.Broadcast);
@@ -36,6 +36,7 @@ public class MessageTest {
 			assertEquals(m5.getSource(),32);
 			assertEquals(m5.getTarget(),-1);
 		} catch(ParseException e){
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 	}
@@ -92,6 +93,7 @@ public class MessageTest {
 			assertTrue(m1.compareTo(m4) < 0);
 			
 		} catch (ParseException e){
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 	}

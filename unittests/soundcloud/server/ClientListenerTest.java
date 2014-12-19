@@ -62,6 +62,7 @@ public class ClientListenerTest {
 			socket2.close();
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		} 
 	}

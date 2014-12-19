@@ -71,6 +71,14 @@ public class Message implements Comparable<Message>{
 	public int getTarget(){
 		return target;
 	}
+
+	/**
+	 * Get-Method for pure string representation
+	 * @return pure representation
+	 */
+	public String getPayload(){
+		return payload;
+	}
 	/**
 	 * Determines if two messages are equal. More formally, two messages are equal, if and only if they have the
 	 * same sequence number.

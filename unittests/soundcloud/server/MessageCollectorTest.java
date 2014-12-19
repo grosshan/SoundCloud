@@ -32,6 +32,7 @@ public class MessageCollectorTest {
 			try{
 				m = new Message(s);
 			} catch (Exception e){
+				e.printStackTrace();
 				fail("Unexpected Exception: " + e.getMessage());
 			}
 			queue.add(m);
@@ -46,6 +47,7 @@ public class MessageCollectorTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 		collect.stop();
@@ -92,6 +94,7 @@ public class MessageCollectorTest {
 			// broad
 			queue.add(new Message("12|B"));
 		} catch (Exception e){
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 		
@@ -104,6 +107,7 @@ public class MessageCollectorTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 		collect.stop();

@@ -72,7 +72,7 @@ public class UserTest {
 		
 	}
 
-	@Test
+	@Test( timeout = 2000 )
 	public void messageTest() {
 		
 		MyListener u1_listen;
@@ -81,13 +81,14 @@ public class UserTest {
 			new Thread(u1_listen).start();
 			
 			Socket u_end = new Socket("localhost",u1_listen.port);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(u_end.getInputStream()));
+			Thread.sleep(100);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(u1_listen.socket.getInputStream()));
 			User u1 = new User(1,30);
 
 			// store messages
-			String s1 = "1|F|1|1";
-			String s2 = "2|F|1|1";
-			String s3 = "3|F|1|1";
+			String s1 = "1|F|1|1\r";
+			String s2 = "2|F|1|1\r\n";
+			String s3 = "3|F|1|1\n";
 			u1.sendMessage(new Message(s1));
 			u1.sendMessage(new Message(s2));
 			u1.sendMessage(new Message(s3));
@@ -100,12 +101,20 @@ public class UserTest {
 			assertNotNull(u1.getMessages());
 			assertTrue(u1.getMessages().size() == 0);
 			
-			assertTrue(reader.readLine().equals(s1));
-			assertTrue(reader.readLine().equals(s2));
-			assertTrue(reader.readLine().equals(s3));
+			char[] ch1 = new char[s1.length()];
+			char[] ch2 = new char[s2.length()];
+			char[] ch3 = new char[s3.length()];
+
+			reader.read(ch1, 0, s1.length());
+			reader.read(ch2, 0, s2.length());
+			reader.read(ch3, 0, s3.length());
+			assertTrue((new String(ch1)).equals(s1));
+			assertTrue((new String(ch2)).equals(s2));
+			assertTrue((new String(ch3)).equals(s3));
 
 			u1.sendMessage(new Message(s1));
-			assertTrue(reader.readLine().equals(s1));
+			reader.read(ch1, 0, s1.length());
+			assertTrue((new String(ch1)).equals(s1));
 			
 			u_end.close();
 			u1_listen.socket.close();

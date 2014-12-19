@@ -95,6 +95,11 @@ public class User {
 	public void openConnection(Socket socket) throws IOException{
 		mySocket = socket;
 		myWriter = new PrintWriter(new OutputStreamWriter(mySocket.getOutputStream()));
+		
+		while(messages.size()>0){
+			myWriter.print(messages.pollFirst().getPayload());
+		}
+		myWriter.flush();
 	}
 	
 	/**

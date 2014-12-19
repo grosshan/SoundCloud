@@ -11,17 +11,17 @@ public class MessageTest {
 	@Test
 	public void parseTest() {
 		try{
-			Message m1 = new Message("666|F|60|50");
+			Message m1 = new Message("666|F|60|50\r\n");
 			assertEquals(m1.getType(),Message.MessageType.Follow);
 			assertEquals(m1.getNumber(),666);
 			assertEquals(m1.getTarget(),50);
 
-			Message m2 = new Message("1|U|12|9");
+			Message m2 = new Message("1|U|12|9\r");
 			assertEquals(m2.getType(),Message.MessageType.Unfollow);
 			assertEquals(m2.getSource(),12);
-			assertEquals(m2.getPayload(),"1|U|12|9");
+			assertEquals(m2.getPayload(),"1|U|12|9\r");
 
-			Message m3 = new Message("542532|B");
+			Message m3 = new Message("542532|B\n");
 			assertEquals(m3.getType(),Message.MessageType.Broadcast);
 			assertEquals(m3.getSource(),-1);
 			assertEquals(m3.getTarget(),-1);
@@ -35,7 +35,7 @@ public class MessageTest {
 			assertEquals(m5.getType(),Message.MessageType.Status);
 			assertEquals(m5.getSource(),32);
 			assertEquals(m5.getTarget(),-1);
-		} catch(ParseException e){
+		} catch(NumberFormatException e){
 			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
@@ -66,7 +66,7 @@ public class MessageTest {
 		for(int i = 0; i < messages.length; i++){
 			try{
 				Message m = new Message(messages[i]);
-			} catch (ParseException e) {
+			} catch (NumberFormatException e) {
 				sum_err++;
 			}
 		}
@@ -92,7 +92,7 @@ public class MessageTest {
 			assertTrue(m3.compareTo(m2) < 0);
 			assertTrue(m1.compareTo(m4) < 0);
 			
-		} catch (ParseException e){
+		} catch (NumberFormatException e){
 			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}

@@ -52,12 +52,19 @@ public class ClientListenerTest {
 			assertTrue(registry.getAllUser().size() == 2);
 
 			User first = registry.getUser(292);
-			first.sendMessage(new Message("66|F|60|50"));
+			String s1 = "66|F|60|50\r\n";
+			String s2 = "1|U|12|9\r\n";
+			first.sendMessage(new Message(s1));
 			User second = registry.getUser(13);
-			second.sendMessage(new Message("1|U|12|9"));
+			second.sendMessage(new Message(s2));
 			
-			assertTrue(in1.readLine().equals("666|F|60|50"));
-			assertTrue(in2.readLine().equals("1|U|12|9"));
+			char[] ch1 = new char[s1.length()];
+			char[] ch2 = new char[s2.length()];
+			in1.read(ch1,0,s1.length());
+			in2.read(ch2,0,s2.length());
+			
+			assertTrue((new String(ch1)).equals("666|F|60|50\r\n"));
+			assertTrue((new String(ch2)).equals("1|U|12|9\r\n"));
 			socket1.close();
 			socket2.close();
 			

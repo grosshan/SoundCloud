@@ -29,6 +29,7 @@ public class SourceListenerTest {
 			out.print("3|B\r\n");
 			out.flush();
 			
+			Thread.sleep(1000);
 			assertTrue(queue.size() == 4);
 			assertTrue(queue.poll().getNumber() == 1);
 			assertTrue(queue.poll().getNumber() == 2);

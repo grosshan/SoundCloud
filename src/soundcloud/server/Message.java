@@ -7,7 +7,6 @@
 package soundcloud.server;
 
 import java.util.regex.Pattern;
-import java.text.ParseException;
 
 public class Message implements Comparable<Message>{
 
@@ -18,10 +17,10 @@ public class Message implements Comparable<Message>{
 	 * @version 1.0
 	 */
 	public enum MessageType{
-		Follow, Unfollow, Broadcast, Private, Status;
+		Broadcast, Status, Follow, Unfollow, Private;
 	}
 	
-	static final Pattern splitter= Pattern.compile("\\|");
+	static final Pattern splitter= Pattern.compile("[\\|\r\n]");
 	
 	// parsed information
 	private MessageType type;
@@ -36,8 +35,48 @@ public class Message implements Comparable<Message>{
 	 * Creates a message object given a specific string representation of it.
 	 * @param payload pure string representation of the message
 	 */
-	public Message(String payload) throws ParseException{
+	public Message(String payload) throws NumberFormatException{
+		String[] splits = splitter.split(payload);
 		
+		this.payload = payload;
+		if (splits.length < 2) throw new NumberFormatException("Too less fields");
+		
+		// extract message type
+		switch(splits[1]){
+			case "F":
+				type = MessageType.Follow;
+				if (splits.length != 4) throw new NumberFormatException("wrong number of fields");
+				
+				break;
+			case "U":
+				type = MessageType.Unfollow;
+				if (splits.length != 4) throw new NumberFormatException("wrong number of fields");
+				break;
+			case "B":
+				type = MessageType.Broadcast;
+				if (splits.length != 2) throw new NumberFormatException("wrong number of fields");
+				break;
+			case "S":
+				type = MessageType.Status;
+				if (splits.length != 3) throw new NumberFormatException("wrong number of fields");
+				break;
+			case "P":
+				type = MessageType.Private;
+				if (splits.length != 4) throw new NumberFormatException("wrong number of fields");
+				break;
+			default:
+				throw new NumberFormatException("Unknown Message Type");
+		}
+		number = Integer.parseInt(splits[0]);
+		if (type.ordinal() < MessageType.Status.ordinal())
+			source = -1;
+		else
+			source = Integer.parseInt(splits[2]);
+		
+		if (type.ordinal() < MessageType.Follow.ordinal())
+			target = -1;
+		else
+			target = Integer.parseInt(splits[3]);
 	}
 	
 	/**
@@ -84,7 +123,9 @@ public class Message implements Comparable<Message>{
 	 * same sequence number.
 	 */
 	public boolean equals(Object o){
-		return false;
+		if(!(o instanceof Message)) return false;
+		
+		return ((Message)o).number == this.number;
 	}
 
 	
@@ -98,7 +139,6 @@ public class Message implements Comparable<Message>{
 	 * @param arg0 Message that will be compared.
 	 */
 	public int compareTo(Message arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.number - arg0.number;
 	}
 }

@@ -80,4 +80,10 @@ public class MessageCollector{
 		
 	}
 	
+	/**
+	 * End all working processes.
+	 */
+	public void stop(){
+		
+	}
 }

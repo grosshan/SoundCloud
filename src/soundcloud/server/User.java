@@ -43,6 +43,22 @@ public class User {
 	}
 	
 	/**
+	 * Returns all followers for this user.
+	 * @return ArrayList of followers
+	 */
+	public ArrayList<User> getFollowers(){
+		return null;
+	}
+	
+	/**
+	 * Returns all stored messages for this user.
+	 * @return ArrayList of followers
+	 */
+	public ArrayDeque<Message> getMessages(){
+		return null;
+	}
+
+	/**
 	 * lock this user
 	 */
 	public void lockUser(){
@@ -76,16 +92,8 @@ public class User {
 	 * The given former follower will be removed
 	 * @param follower that should be removed
 	 */
-	public void removerFollower(User follower){
+	public void removeFollower(User follower){
 		
-	}
-	
-	/**
-	 * Returns all followers for this user.
-	 * @return ArrayList of followers
-	 */
-	public ArrayList<User> getFollowers(){
-		return null;
 	}
 	
 	/**

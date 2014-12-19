@@ -44,12 +44,19 @@ public class UserRegistry {
 	
 	/**
 	 * Register a new user in registry with given id. <THREAD SAFE>
-	 * @param id
+	 * @param id user-id
 	 */
 	public void registerUser(int id){
 		
 	}
 
+	/**
+	 * Register a new user in registry <THREAD SAFE>
+	 * @param user user that should be registered
+	 */
+	public void registerUser(User user){
+		
+	}
 	/**
 	 * Searches for a specific user in the registry
 	 * @param id user-id to search for

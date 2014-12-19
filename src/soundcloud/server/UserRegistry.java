@@ -10,6 +10,7 @@ package soundcloud.server;
 
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class UserRegistry {
@@ -24,6 +25,14 @@ public class UserRegistry {
 		
 	}
 	
+	/**
+	 * Return a list of all users in registry.
+	 * @return user that corresponds to the id or null if no such user exists.
+	 */
+	public List<User> getAllUser(){
+		return null;
+	}
+
 	/**
 	 * searches for a user with given id. Returns null if a user was not found.
 	 * @param id user-id to search for

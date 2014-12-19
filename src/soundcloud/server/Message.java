@@ -7,6 +7,7 @@
 package soundcloud.server;
 
 import java.util.regex.Pattern;
+import java.text.ParseException;
 
 public class Message implements Comparable<Message>{
 
@@ -35,10 +36,41 @@ public class Message implements Comparable<Message>{
 	 * Creates a message object given a specific string representation of it.
 	 * @param payload pure string representation of the message
 	 */
-	public Message(String payload){
+	public Message(String payload) throws ParseException{
 		
 	}
 	
+	/**
+	 * Get-Method for message type
+	 * @return message type
+	 */
+	public MessageType getType(){
+		return type;
+	}
+
+	/**
+	 * Get-Method for sequence number
+	 * @return sequence number
+	 */
+	public int getNumber(){
+		return number;
+	}
+
+	/**
+	 * Get-Method for source id
+	 * @return source id if possible, -1 if no source is known
+	 */
+	public int getSource(){
+		return source;
+	}
+
+	/**
+	 * Get-Method for target id
+	 * @return target id if possible, -1 if no concrete target is known
+	 */
+	public int getTarget(){
+		return target;
+	}
 	/**
 	 * Determines if two messages are equal. More formally, two messages are equal, if and only if they have the
 	 * same sequence number.

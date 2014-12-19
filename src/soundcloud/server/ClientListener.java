@@ -16,6 +16,7 @@ public class ClientListener implements Runnable {
 
 	private UserRegistry registry;
 	private ServerSocket servSocket;
+	private int port;
 	
 	/**
 	 * Creates a Listener. Listener opens server socket at given port.
@@ -36,4 +37,11 @@ public class ClientListener implements Runnable {
 
 	}
 
+	/**
+	 * Returns the port, the listener listens to.
+	 * @return port 
+	 */
+	public int getPort() {
+		return port;
+	}
 }

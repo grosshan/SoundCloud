@@ -36,7 +36,7 @@ public class MessageTest {
 			assertEquals(m5.getSource(),32);
 			assertEquals(m5.getTarget(),-1);
 		} catch(ParseException e){
-			fail("Unexpected Exception");
+			fail("Unexpected Exception: " + e.getMessage());
 		}
 	}
 	
@@ -92,7 +92,7 @@ public class MessageTest {
 			assertTrue(m1.compareTo(m4) < 0);
 			
 		} catch (ParseException e){
-			fail("Unexpected Exception");
+			fail("Unexpected Exception: " + e.getMessage());
 		}
 	}
 

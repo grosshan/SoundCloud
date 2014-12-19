@@ -29,6 +29,14 @@ public class ClientListener implements Runnable {
 	}
 	
 	/**
+	 * Returns the port, the listener listens to.
+	 * @return port 
+	 */
+	public int getPort() {
+		return port;
+	}
+	
+	/**
 	 * Runs this thread. Listener accepts user clients and register them in user registry. 
 	 */
 	@Override
@@ -37,11 +45,4 @@ public class ClientListener implements Runnable {
 
 	}
 
-	/**
-	 * Returns the port, the listener listens to.
-	 * @return port 
-	 */
-	public int getPort() {
-		return port;
-	}
 }

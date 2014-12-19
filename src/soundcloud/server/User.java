@@ -7,6 +7,7 @@
  */
 package soundcloud.server;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -61,35 +62,51 @@ public class User {
 	/**
 	 * lock this user
 	 */
-	public void lockUser(){
-		
+	public void lock(){
+
 	}
 	
 	/**
 	 * unlock this user
 	 */
-	public void unlockUser(){
+	public void unlock(){
 		
 	}
 	
 	/**
+	 * Check if this user is locked or not
+	 * return true, if and only if the user is locked
+	 */
+	public boolean isLocked(){
+		return false;
+	}
+
+	/**
 	 * Register a connection for this user. Stored messages will be immediately flushed out.
 	 * @param socket the socket that corresponds to the user
+	 * @throws IOException Connection could not be opened.
 	 */
-	public void openConnection(Socket socket){
+	public void openConnection(Socket socket) throws IOException{
 		mySocket = socket;
 	}
 	
 	/**
-	 * Add a follower to this user. 
+	 * Closes the current connection for this user.
+	 * @throws IOException Connection could not be closed.
+	 */
+	public void closeConnection() throws IOException{
+		
+	}
+	/**
+	 * Add a follower to this user. If the user is already a follower this request will be ignored. 
 	 * @param follower the new follower
 	 */
-	public void addFollower(User follower){
+	public void addFollower(User follower) {
 		
 	}
 	
 	/**
-	 * The given former follower will be removed
+	 * The given former follower will be removed.
 	 * @param follower that should be removed
 	 */
 	public void removeFollower(User follower){
@@ -98,10 +115,21 @@ public class User {
 	
 	/**
 	 * Send a specific message via an open connection.
-	 * If no connection is open, the message will be stored in memory instead.
+	 * If no valid connection is open, the message will be stored in memory instead.
 	 * @param message message to be sent
 	 */
 	public void sendMessage(Message message){
+		
+	}
+
+	/**
+	 * Check if two users are equal. Two Users are equal if they have the same id.
+	 * @param o An object to compare with.
+	 * @return false if o is not a user, or a different user.
+	 */
+	@Override
+	public boolean equals(Object o){
+		return false;
 		
 	}
 }

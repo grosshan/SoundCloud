@@ -37,12 +37,14 @@ public class ClientListenerTest {
 			assertTrue(registry.getAllUser().size() == 0);
 
 			out1.print("292\r\n");
+			out1.flush();
 			assertTrue(registry.hasUser(292));
 			assertFalse(registry.hasUser(13));
 			assertFalse(registry.hasUser(15));
 			assertTrue(registry.getAllUser().size() == 1);
 
 			out2.print("13\r\n");
+			out2.flush();
 			assertTrue(registry.hasUser(292));
 			assertTrue(registry.hasUser(13));
 			assertFalse(registry.hasUser(15));
@@ -60,7 +62,7 @@ public class ClientListenerTest {
 			socket2.close();
 			
 		} catch (Exception e) {
-			fail(e.getMessage());
+			fail("Unexpected Exception: " + e.getMessage());
 		} 
 	}
 

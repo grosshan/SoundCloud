@@ -18,6 +18,7 @@ public class SourceListener implements Runnable{
 	private PriorityBlockingQueue<Message> queue;
 	private ServerSocket servSocket;
 	private Socket socket;
+	private int port;
 
 	/**
 	 * Constructor. Will create a source listener with respect to the given queue and the given port.
@@ -28,6 +29,14 @@ public class SourceListener implements Runnable{
 		
 	}
 
+	/**
+	 * Returns the port, the listener listens to.
+	 * @return port 
+	 */
+	public int getPort() {
+		return port;
+	}
+	
 	@Override
 	/**
 	 * Method to start the Executor. The Listener will read & parse an incoming message and store it into the

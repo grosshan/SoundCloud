@@ -32,7 +32,7 @@ public class MessageCollectorTest {
 			try{
 				m = new Message(s);
 			} catch (Exception e){
-				fail(e.getMessage());
+				fail("Unexpected Exception: " + e.getMessage());
 			}
 			queue.add(m);
 		}
@@ -46,10 +46,11 @@ public class MessageCollectorTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			fail(e.getMessage());
+			fail("Unexpected Exception: " + e.getMessage());
 		}
 		collect.stop();
 		
+		assertNotNull(u1.getMessages());
 		assertTrue(u1.getMessages().size() == 100);
 		for(int i = 0; i < u1.getMessages().size(); i++){
 			assertTrue(u1.getMessages().pollFirst().getNumber() == i+1);
@@ -91,7 +92,7 @@ public class MessageCollectorTest {
 			// broad
 			queue.add(new Message("12|B"));
 		} catch (Exception e){
-			fail(e.getMessage());
+			fail("Unexpected Exception: " + e.getMessage());
 		}
 		
 		assertTrue(queue.size() == 12);
@@ -103,10 +104,11 @@ public class MessageCollectorTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			fail(e.getMessage());
+			fail("Unexpected Exception: " + e.getMessage());
 		}
 		collect.stop();
 		
+		assertNotNull(u1.getMessages());
 		assertTrue(u1.getMessages().size() == 4);
 		assertTrue(u1.getMessages().pollFirst().getNumber() == 1);
 		assertTrue(u1.getMessages().pollFirst().getNumber() == 3);
@@ -114,6 +116,7 @@ public class MessageCollectorTest {
 		assertTrue(u1.getMessages().pollFirst().getNumber() == 12);
 		assertTrue(u1.getFollowers().size() == 2);
 
+		assertNotNull(u2.getMessages());
 		assertTrue(u2.getMessages().size() == 6);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 2);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 4);
@@ -123,6 +126,7 @@ public class MessageCollectorTest {
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 12);
 		assertTrue(u2.getFollowers().size() == 1);
 
+		assertNotNull(u3.getMessages());
 		assertTrue(u3.getMessages().size() == 4);
 		assertTrue(u3.getMessages().pollFirst().getNumber() == 8);
 		assertTrue(u3.getMessages().pollFirst().getNumber() == 9);

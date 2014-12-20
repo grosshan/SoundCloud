@@ -105,8 +105,6 @@ public class MessageCollector{
 					
 					// send messages & unlock recipients
 					for(User u : recipients){
-						System.out.println("Thread " + this.getId()+ " send message " + m.getPayload() + " to " +
-									u.getID());				
 						u.sendMessage(m);
 						u.unlock();
 					}

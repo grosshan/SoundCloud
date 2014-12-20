@@ -14,13 +14,14 @@ public class ClientListenerTest {
 	@Test
 	public void registerUser() {
 		
-		// set up a Listener
-		UserRegistry registry = new UserRegistry();
-		ClientListener listen = new ClientListener(registry, 0);
-		Thread t = new Thread(listen);
-		t.start();
 		
 		try {
+			// set up a Listener
+			UserRegistry registry = new UserRegistry();
+			ClientListener listen = new ClientListener(registry, 0);
+			Thread t = new Thread(listen);
+			t.start();
+
 			Socket socket1 = new Socket("localhost",listen.getPort());
 			Socket socket2 = new Socket("localhost",listen.getPort());
 
@@ -34,6 +35,8 @@ public class ClientListenerTest {
 
 			out1.print("292\r\n");
 			out1.flush();
+			
+			Thread.sleep(10);
 			assertTrue(registry.hasUser(292));
 			assertFalse(registry.hasUser(13));
 			assertFalse(registry.hasUser(15));
@@ -41,6 +44,8 @@ public class ClientListenerTest {
 
 			out2.print("13\r\n");
 			out2.flush();
+
+			Thread.sleep(10);
 			assertTrue(registry.hasUser(292));
 			assertTrue(registry.hasUser(13));
 			assertFalse(registry.hasUser(15));
@@ -59,7 +64,7 @@ public class ClientListenerTest {
 			in1.read(ch1,0,s1.length());
 			in2.read(ch2,0,s2.length());
 			
-			assertTrue((new String(ch1)).equals("666|F|60|50\r\n"));
+			assertTrue((new String(ch1)).equals("66|F|60|50\r\n"));
 			assertTrue((new String(ch2)).equals("1|U|12|9\r\n"));
 			socket1.close();
 			socket2.close();

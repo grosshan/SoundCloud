@@ -8,11 +8,14 @@
 
 package soundcloud.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-public class ClientListener implements Runnable {
+public class ClientListener extends Thread {
 
 	private UserRegistry registry;
 	private ServerSocket servSocket;
@@ -24,7 +27,10 @@ public class ClientListener implements Runnable {
 	 * @param registry Registry, where users will be registered.
 	 * @param port Listener will accept user requests on this given port.
 	 */
-	public ClientListener(UserRegistry registry, int port){
+	public ClientListener(UserRegistry registry, int port) throws IOException{
+		this.registry = registry;
+		servSocket = new ServerSocket(port);
+		this.port = servSocket.getLocalPort();
 		
 	}
 	
@@ -41,7 +47,22 @@ public class ClientListener implements Runnable {
 	 */
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		while(!this.isInterrupted()){
+			try{
+				Socket socket = servSocket.accept();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				User u = new User(Integer.parseInt(reader.readLine()));
+				u.openConnection(socket);
+				
+				registry.registerUser(u);
+				
+			} catch (IOException e){
+				e.printStackTrace();
+				if(servSocket.isClosed() || !servSocket.isBound())
+					this.interrupt();
+			}
+			
+		}
 
 	}
 

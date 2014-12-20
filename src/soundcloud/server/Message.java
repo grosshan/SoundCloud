@@ -41,7 +41,7 @@ public class Message implements Comparable<Message>{
 		this.payload = payload;
 		if (splits.length < 2) throw new NumberFormatException("Too less fields");
 		
-		// extract message type
+		// extract message type & check number of fields
 		switch(splits[1]){
 			case "F":
 				type = MessageType.Follow;
@@ -67,13 +67,14 @@ public class Message implements Comparable<Message>{
 			default:
 				throw new NumberFormatException("Unknown Message Type");
 		}
+		// fill fields
 		number = Integer.parseInt(splits[0]);
-		if (type.ordinal() < MessageType.Status.ordinal())
+		if (type.ordinal() < MessageType.Status.ordinal()) // Broadcast -> no source
 			source = -1;
 		else
 			source = Integer.parseInt(splits[2]);
 		
-		if (type.ordinal() < MessageType.Follow.ordinal())
+		if (type.ordinal() < MessageType.Follow.ordinal()) // Broadcast && Status -> no target
 			target = -1;
 		else
 			target = Integer.parseInt(splits[3]);
@@ -81,6 +82,7 @@ public class Message implements Comparable<Message>{
 	
 	/**
 	 * Get-Method for message type
+	 * <THREAD SAFE>
 	 * @return message type
 	 */
 	public MessageType getType(){
@@ -89,6 +91,7 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for sequence number
+	 * <THREAD SAFE>
 	 * @return sequence number
 	 */
 	public int getNumber(){
@@ -97,6 +100,7 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for source id
+	 * <THREAD SAFE>
 	 * @return source id if possible, -1 if no source is known
 	 */
 	public int getSource(){
@@ -105,6 +109,7 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for target id
+	 * <THREAD SAFE>
 	 * @return target id if possible, -1 if no concrete target is known
 	 */
 	public int getTarget(){
@@ -113,6 +118,7 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for pure string representation
+	 * <THREAD SAFE>
 	 * @return pure representation
 	 */
 	public String getPayload(){
@@ -122,6 +128,7 @@ public class Message implements Comparable<Message>{
 	 * Determines if two messages or a message and an Integer are equal. 
 	 * More formally, two messages are equal, if and only if they have the same sequence number.
 	 * More formally, a messages and an integer are equal, if the sequence number corresponds to the integer.
+	 * <THREAD SAFE>
 	 */
 	public boolean equals(Object o){
 		if(o instanceof Message) return ((Message)o).number == this.number;
@@ -136,7 +143,7 @@ public class Message implements Comparable<Message>{
 	 * if #this < #arg0  then ret_val < 0
 	 * if #this == #arg0 then ret_val == 0
 	 * if #this > #arg0  then ret_val > 0
-	 * 
+	 * <THREAD SAFE>
 	 * @param arg0 Message that will be compared.
 	 */
 	public int compareTo(Message arg0) {

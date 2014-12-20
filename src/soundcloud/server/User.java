@@ -51,6 +51,7 @@ public class User {
 	
 	/**
 	 * Returns the id for this user.
+	 * <THREAD SAFE>
 	 * @return id
 	 */
 	public int getID(){
@@ -59,6 +60,7 @@ public class User {
 
 	/**
 	 * Returns all followers for this user.
+	 * <THREAD SAFE>
 	 * @return ArrayList of followers
 	 */
 	public ArrayList<User> getFollowers(){
@@ -67,6 +69,7 @@ public class User {
 	
 	/**
 	 * Returns all stored messages for this user.
+	 * <THREAD SAFE>
 	 * @return ArrayList of followers
 	 */
 	public ArrayDeque<Message> getMessages(){
@@ -75,6 +78,7 @@ public class User {
 
 	/**
 	 * lock this user
+	 * <SYNCHRONIZATION>
 	 */
 	public void lock(){
 		myLock.lock();
@@ -82,14 +86,16 @@ public class User {
 	
 	/**
 	 * unlock this user
+	 * <SYNCHRONIZATION>
 	 */
 	public void unlock(){
-		myLock.unlock();
+		if (isLocked()) myLock.unlock();
 	}
 	
 	/**
 	 * Check if this user is locked or not
 	 * return true, if and only if the user is locked
+	 * <SYNCHRONIZATION>
 	 */
 	public boolean isLocked(){
 		return myLock.isLocked();
@@ -97,6 +103,7 @@ public class User {
 
 	/**
 	 * Register a connection for this user. Stored messages will be immediately flushed out.
+	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param socket the socket that corresponds to the user
 	 * @throws IOException Connection could not be opened.
 	 */
@@ -112,6 +119,7 @@ public class User {
 	
 	/**
 	 * Closes the current connection for this user.
+	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @throws IOException Connection could not be closed.
 	 */
 	public void closeConnection() throws IOException{
@@ -120,8 +128,10 @@ public class User {
 		myWriter.close();
 		myWriter = null;
 	}
+	
 	/**
 	 * Add a follower to this user. If the user is already a follower this request will be ignored. 
+	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param follower the new follower
 	 */
 	public void addFollower(User follower) {
@@ -132,6 +142,7 @@ public class User {
 	
 	/**
 	 * The given former follower will be removed.
+	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param follower that should be removed
 	 */
 	public void removeFollower(User follower){
@@ -141,13 +152,15 @@ public class User {
 	/**
 	 * Send a specific message via an open connection.
 	 * If no valid connection is open, the message will be stored in memory instead.
+	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param message message to be sent
 	 */
 	public void sendMessage(Message message){
 		if(mySocket == null || mySocket.isClosed() ||
-				!mySocket.isConnected() || !mySocket.isBound()){
+				!mySocket.isConnected() || !mySocket.isBound()){ // socket is not good, store message
 			messages.add(message);
 		} else {
+			// send message via socket
 			myWriter.print(message.getPayload());
 			myWriter.flush();
 		}
@@ -155,6 +168,7 @@ public class User {
 
 	/**
 	 * Check if two users are equal. Two Users are equal if they have the same id.
+	 * <THREAD SAFE>
 	 * @param o An object to compare with.
 	 * @return false if o is not a user, or a different user.
 	 */

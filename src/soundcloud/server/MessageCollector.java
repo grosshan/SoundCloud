@@ -46,7 +46,6 @@ public class MessageCollector{
 			this.queue = queue;
 		}
 		
-		@Override
 		/**
 		 * Start this runnable object. It will run until it is interrupted. Protocol:
 		 * 1. lock the queue
@@ -57,28 +56,33 @@ public class MessageCollector{
 		 * 5.1. send message
 		 * 5.2. send unlock recipient
 		 */
+		@Override
 		public void run() {
 			while(!this.isInterrupted()){
+				
+				// lock queue & collect message
 				this.queueLock.lock();
 				Message m = this.queue.poll();
-				if (m == null) {
+				
+				if (m == null) { // interrupted poll -> unlock queue and interrupt/close this thread
 					this.interrupt();
 					this.queueLock.unlock();
 				}
-				else {
+				else { // we have a message
+					
 					// determine recipients
 					Collection<User> recipients;
 					switch(m.getType()){
-					case Broadcast: // all users
+					case Broadcast: // rec: all users
 						recipients = registry.getAllUser();
 						break;
-					case Status: // followers
+					case Status: // rec: followers
 						recipients = registry.getUser(m.getSource()).getFollowers();
 						break;
-					case Unfollow: // none
+					case Unfollow: // rec: none
 						recipients = new ArrayList<User>();
 						break;
-					default: // target
+					default: // rec: target
 						recipients = new ArrayList<User>();
 						recipients.add(registry.getUser(m.getTarget()));
 						break;
@@ -95,6 +99,7 @@ public class MessageCollector{
 					default:
 						break;
 					}
+					
 					// lock all recipients
 					for(User u : recipients){
 						u.lock();
@@ -133,6 +138,7 @@ public class MessageCollector{
 	
 	/**
 	 * Start the working process. e.g. all threads will be created and started
+	 * <NOT THREAD SAFE>
 	 */
 	public void start(){
 		for(int i = 0; i < this.executors.size(); i++){
@@ -142,6 +148,7 @@ public class MessageCollector{
 	
 	/**
 	 * End all working processes.
+	 * <NOT THREAD SAFE>
 	 */
 	public void stop(){
 		for(int i = 0; i < this.executors.size(); i++){

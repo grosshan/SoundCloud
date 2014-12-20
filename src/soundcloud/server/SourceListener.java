@@ -46,11 +46,11 @@ public class SourceListener extends Thread{
 	 */
 	@Override
 	public void run() {
-		// open Socket
 		try {
 			char[] buffer = new char[256];
 			StringBuffer message = new StringBuffer(64);
 
+			// open Socket
 			this.socket = servSocket.accept();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(),"UTF-8"));
 
@@ -59,10 +59,10 @@ public class SourceListener extends Thread{
 				int numChars = reader.read(buffer, 0, buffer.length);
 				
 				// now extract messages
-				
 				for(int i = 0; i < numChars; i++){
 					message.append(buffer[i]);
 					
+					// end of message -> add to queue
 					if(buffer[i] == '\n'){
 						queue.add(new Message(message.toString()));
 						message = new StringBuffer(64);

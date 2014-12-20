@@ -27,6 +27,7 @@ public class UserRegistry {
 	
 	/**
 	 * Return a list of all users in registry.
+	 * <THREAD SAFE>
 	 * @return user that corresponds to the id or null if no such user exists.
 	 */
 	public Collection<User> getAllUser(){
@@ -35,6 +36,7 @@ public class UserRegistry {
 
 	/**
 	 * searches for a user with given id. Returns null if a user was not found.
+	 * <THREAD SAFE>
 	 * @param id user-id to search for
 	 * @return user that corresponds to the id or null if no such user exists.
 	 */
@@ -64,6 +66,7 @@ public class UserRegistry {
 	}
 	/**
 	 * Searches for a specific user in the registry
+	 * <THREAD SAFE>
 	 * @param id user-id to search for
 	 * @return true if a user was found, false otherwise.
 	 */

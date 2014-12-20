@@ -35,6 +35,7 @@ public class ClientListener extends Thread {
 	
 	/**
 	 * Returns the port, the listener listens to.
+	 * <THREAD SAFE>
 	 * @return port 
 	 */
 	public int getPort() {

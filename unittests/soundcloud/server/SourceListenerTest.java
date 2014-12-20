@@ -12,12 +12,12 @@ public class SourceListenerTest {
 	@Test
 	public void connectTest() {
 		
-		MessageQueue queue = new MessageQueue();
-		SourceListener listen = new SourceListener(queue, 0);
-		Thread t = new Thread(listen);
-		t.start();
-		
 		try {
+			MessageQueue queue = new MessageQueue();
+			SourceListener listen = new SourceListener(queue, 0);
+			Thread t = new Thread(listen);
+			t.start();
+			
 			Socket socket = new Socket("localhost", listen.getPort());
 			PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 			

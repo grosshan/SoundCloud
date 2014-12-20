@@ -49,7 +49,7 @@ public class ClientListener extends Thread {
 		while(!this.isInterrupted()){
 			try{
 				Socket socket = servSocket.accept();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 				User u = new User(Integer.parseInt(reader.readLine()));
 				u.openConnection(socket);
 				

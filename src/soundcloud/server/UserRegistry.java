@@ -8,10 +8,8 @@
 
 package soundcloud.server;
 
-import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class UserRegistry {

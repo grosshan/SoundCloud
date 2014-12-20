@@ -119,13 +119,14 @@ public class Message implements Comparable<Message>{
 		return payload;
 	}
 	/**
-	 * Determines if two messages are equal. More formally, two messages are equal, if and only if they have the
-	 * same sequence number.
+	 * Determines if two messages or a message and an Integer are equal. 
+	 * More formally, two messages are equal, if and only if they have the same sequence number.
+	 * More formally, a messages and an integer are equal, if the sequence number corresponds to the integer.
 	 */
 	public boolean equals(Object o){
-		if(!(o instanceof Message)) return false;
-		
-		return ((Message)o).number == this.number;
+		if(o instanceof Message) return ((Message)o).number == this.number;
+		if(o instanceof Integer) return ((Integer)o).intValue() == this.number;
+		return false;
 	}
 
 	

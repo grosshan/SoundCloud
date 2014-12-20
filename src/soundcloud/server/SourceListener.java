@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SourceListener implements Runnable{
 
-	private PriorityBlockingQueue<Message> queue;
+	private MessageQueue queue;
 	private ServerSocket servSocket;
 	private Socket socket;
 	private int port;
@@ -25,7 +25,7 @@ public class SourceListener implements Runnable{
 	 * @param queue queue, where messages should be stored.
 	 * @param port port, where the listener wants to listen to.
 	 */
-	public SourceListener(PriorityBlockingQueue<Message> queue, int port){
+	public SourceListener(MessageQueue queue, int port){
 		
 	}
 

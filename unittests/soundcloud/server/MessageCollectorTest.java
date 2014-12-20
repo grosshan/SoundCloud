@@ -2,8 +2,6 @@ package soundcloud.server;
 
 import static org.junit.Assert.*;
 
-import java.util.concurrent.PriorityBlockingQueue;
-
 import org.junit.Test;
 
 public class MessageCollectorTest {
@@ -17,7 +15,7 @@ public class MessageCollectorTest {
 		registry.registerUser(u1);
 		registry.registerUser(u2);
 
-		PriorityBlockingQueue<Message> queue = new PriorityBlockingQueue<Message>();
+		MessageQueue queue = new MessageQueue();
 		for(int i = 98; i >= 0; i--){
 			String s = (i+1) + "|";
 			
@@ -35,7 +33,7 @@ public class MessageCollectorTest {
 				e.printStackTrace();
 				fail("Unexpected Exception: " + e.getMessage());
 			}
-			queue.add(m);
+			queue.offer(m);
 		}
 		
 		assertTrue(queue.size() == 99);
@@ -53,11 +51,16 @@ public class MessageCollectorTest {
 		collect.stop();
 		
 		assertNotNull(u1.getMessages());
-		assertTrue(u1.getMessages().size() == 100);
-		for(int i = 0; i < u1.getMessages().size(); i++){
-			assertTrue(u1.getMessages().pollFirst().getNumber() == i+1);
-		}
+		assertNotNull(u2.getMessages());
+		
 		assertTrue(u1.getMessages().size() == 0);
+		assertTrue(u2.getMessages().size() == 50);
+		int i = 0;
+		while(u2.getMessages().size()>0){
+			assertTrue(u2.getMessages().pollFirst().getNumber() == 2*i+1);
+			i++;
+		}
+		assertTrue(u2.getMessages().size() == 0);
 		
 	}
 
@@ -72,7 +75,7 @@ public class MessageCollectorTest {
 		registry.registerUser(u2);
 		registry.registerUser(u3);
 
-		PriorityBlockingQueue<Message> queue = new PriorityBlockingQueue<Message>();
+		MessageQueue queue = new MessageQueue();
 		try{
 			// follow/unfollow
 			queue.add(new Message("1|F|2|1"));
@@ -121,10 +124,9 @@ public class MessageCollectorTest {
 		assertTrue(u1.getFollowers().size() == 2);
 
 		assertNotNull(u2.getMessages());
-		assertTrue(u2.getMessages().size() == 6);
+		assertTrue(u2.getMessages().size() == 5);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 2);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 4);
-		assertTrue(u2.getMessages().pollFirst().getNumber() == 5);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 7);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 9);
 		assertTrue(u2.getMessages().pollFirst().getNumber() == 12);

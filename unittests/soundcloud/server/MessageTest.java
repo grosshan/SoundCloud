@@ -2,8 +2,6 @@ package soundcloud.server;
 
 import static org.junit.Assert.*;
 
-import java.text.ParseException;
-
 import org.junit.Test;
 
 public class MessageTest {
@@ -65,7 +63,7 @@ public class MessageTest {
 		int sum_err = 0;
 		for(int i = 0; i < messages.length; i++){
 			try{
-				Message m = new Message(messages[i]);
+				new Message(messages[i]);
 			} catch (NumberFormatException e) {
 				sum_err++;
 			}

@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.concurrent.PriorityBlockingQueue;
-
 import org.junit.Test;
 
 public class SourceListenerTest {
@@ -14,7 +12,7 @@ public class SourceListenerTest {
 	@Test
 	public void connectTest() {
 		
-		PriorityBlockingQueue<Message> queue = new PriorityBlockingQueue<Message>();
+		MessageQueue queue = new MessageQueue();
 		SourceListener listen = new SourceListener(queue, 0);
 		Thread t = new Thread(listen);
 		t.start();

@@ -8,14 +8,13 @@
 package soundcloud.server;
 
 import java.util.ArrayList;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 public class MessageCollector{
 
-	private PriorityBlockingQueue<Message> queue;
+	private MessageQueue queue;
 	private UserRegistry registry;
 	private ReentrantLock queueLock;
 	private ArrayList<MyExecutor> executors;
@@ -27,11 +26,11 @@ public class MessageCollector{
 	 * @author Michael Grosshans
 	 * @version 1.0
 	 */	
-	private class MyExecutor implements Runnable{
+	private class MyExecutor extends Thread{
 
 		private UserRegistry registry;
 		private ReentrantLock queueLock;
-		private PriorityBlockingQueue<Message> queue;
+		private MessageQueue queue;
 	
 		/**
 		 * Constructor that creates this runnable object and register the shared lock, queue and
@@ -41,7 +40,10 @@ public class MessageCollector{
 		 * @param queue the shared queue
 		 */
 		public MyExecutor(UserRegistry registry,
-				ReentrantLock queueLock, PriorityBlockingQueue<Message> queue){
+				ReentrantLock queueLock, MessageQueue queue){
+			this.registry = registry;
+			this.queueLock = queueLock;
+			this.queue = queue;
 		}
 		
 		@Override
@@ -56,8 +58,60 @@ public class MessageCollector{
 		 * 5.2. send unlock recipient
 		 */
 		public void run() {
-			// TODO Auto-generated method stub
-		
+			while(!this.isInterrupted()){
+				this.queueLock.lock();
+				Message m = this.queue.poll();
+				if (m == null) {
+					this.interrupt();
+					this.queueLock.unlock();
+				}
+				else {
+					// determine recipients
+					Collection<User> recipients;
+					switch(m.getType()){
+					case Broadcast: // all users
+						recipients = registry.getAllUser();
+						break;
+					case Status: // followers
+						recipients = registry.getUser(m.getSource()).getFollowers();
+						break;
+					case Unfollow: // none
+						recipients = new ArrayList<User>();
+						break;
+					default: // target
+						recipients = new ArrayList<User>();
+						recipients.add(registry.getUser(m.getTarget()));
+						break;
+					}
+					
+					// determine follow/unfollow operation on users
+					switch(m.getType()){
+					case Unfollow:
+						registry.getUser(m.getTarget()).removeFollower(registry.getUser(m.getSource()));
+						break;
+					case Follow:
+						registry.getUser(m.getTarget()).addFollower(registry.getUser(m.getSource()));
+						break;
+					default:
+						break;
+					}
+					// lock all recipients
+					for(User u : recipients){
+						u.lock();
+					}
+					
+					// unlock queue
+					this.queueLock.unlock();
+					
+					// send messages & unlock recipients
+					for(User u : recipients){
+						System.out.println("Thread " + this.getId()+ " send message " + m.getPayload() + " to " +
+									u.getID());				
+						u.sendMessage(m);
+						u.unlock();
+					}
+				}
+			}
 		}
 	
 	}
@@ -68,22 +122,32 @@ public class MessageCollector{
 	 * @param registry the user registry
 	 * @param numThreads number of threads the collector should use 
 	 */
-	public MessageCollector(PriorityBlockingQueue<Message> queue,
+	public MessageCollector(MessageQueue queue,
 			UserRegistry registry, int numThreads){
-		
+		this.queue = queue;
+		this.registry = registry;
+		this.queueLock = new ReentrantLock();
+		this.executors = new ArrayList<MyExecutor>();
+		for(int i = 0; i < numThreads; i++){
+			this.executors.add(new MyExecutor(this.registry, this.queueLock, this.queue));
+		}
 	}
 	
 	/**
 	 * Start the working process. e.g. all threads will be created and started
 	 */
 	public void start(){
-		
+		for(int i = 0; i < this.executors.size(); i++){
+			this.executors.get(i).start();
+		}
 	}
 	
 	/**
 	 * End all working processes.
 	 */
 	public void stop(){
-		
+		for(int i = 0; i < this.executors.size(); i++){
+			this.executors.get(i).interrupt();;
+		}		
 	}
 }

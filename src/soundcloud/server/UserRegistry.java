@@ -9,6 +9,7 @@
 package soundcloud.server;
 
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,15 +23,16 @@ public class UserRegistry {
 	 * standard constructor
 	 */
 	public UserRegistry(){
-		
+		lock = new ReentrantLock();
+		registry = new HashMap<Integer, User>();
 	}
 	
 	/**
 	 * Return a list of all users in registry.
 	 * @return user that corresponds to the id or null if no such user exists.
 	 */
-	public List<User> getAllUser(){
-		return null;
+	public Collection<User> getAllUser(){
+		return registry.values();
 	}
 
 	/**
@@ -39,23 +41,28 @@ public class UserRegistry {
 	 * @return user that corresponds to the id or null if no such user exists.
 	 */
 	public User getUser(int id){
-		return null;
+		return registry.get(id);
 	}
 	
 	/**
-	 * Register a new user in registry with given id. <THREAD SAFE>
+	 * Register a new user in registry with given id. If a user with same id already exists, nothing will be done.
+	 * <THREAD SAFE>
 	 * @param id user-id
 	 */
 	public void registerUser(int id){
-		
+		registerUser(new User(id));
 	}
 
 	/**
-	 * Register a new user in registry <THREAD SAFE>
+	 * Register a new user in registry. If a user with same id already exists, nothing will be done.
+	 * <THREAD SAFE>
 	 * @param user user that should be registered
 	 */
 	public void registerUser(User user){
-		
+		if(getUser(user.getID()) != null) return;
+		lock.lock();
+		registry.put(user.getID(), user);
+		lock.unlock();
 	}
 	/**
 	 * Searches for a specific user in the registry
@@ -63,6 +70,6 @@ public class UserRegistry {
 	 * @return true if a user was found, false otherwise.
 	 */
 	public boolean hasUser(int id){
-		return getUser(id) == null;
+		return getUser(id) != null;
 	}
 }

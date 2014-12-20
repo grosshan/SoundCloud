@@ -22,10 +22,14 @@ public class UserRegistryTest {
 		assertTrue(registry.getAllUser().contains(u2));
 		assertTrue(registry.getAllUser().contains(u3));
 
-		assertTrue(registry.getUser(1) == u1);
+		assertFalse(registry.getUser(1) == u1);
 		assertTrue(registry.getUser(2) == u2);
 		assertTrue(registry.getUser(3) == u3);
 	
+		assertTrue(registry.getUser(1).equals(u1));
+		assertTrue(registry.getUser(2).equals(u2));
+		assertTrue(registry.getUser(3).equals(u3));
+
 		assertTrue(registry.hasUser(1));
 		assertTrue(registry.hasUser(2));
 		assertTrue(registry.hasUser(3));

@@ -50,6 +50,14 @@ public class User {
 	}
 	
 	/**
+	 * Returns the id for this user.
+	 * @return id
+	 */
+	public int getID(){
+		return myID;
+	}
+
+	/**
 	 * Returns all followers for this user.
 	 * @return ArrayList of followers
 	 */

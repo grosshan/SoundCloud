@@ -25,8 +25,8 @@ public class Message implements Comparable<Message>{
 	// parsed information
 	private MessageType type;
 	private int number;
-	private int source;
-	private int target;
+	private User source;
+	private User target;
 	
 	// pure message
 	private String payload;
@@ -35,7 +35,7 @@ public class Message implements Comparable<Message>{
 	 * Creates a message object given a specific string representation of it.
 	 * @param payload pure string representation of the message
 	 */
-	public Message(String payload) throws NumberFormatException{
+	public Message(String payload, UserRegistry registry) throws NumberFormatException{
 		String[] splits = splitter.split(payload);
 		
 		this.payload = payload;
@@ -67,17 +67,29 @@ public class Message implements Comparable<Message>{
 			default:
 				throw new NumberFormatException("Unknown Message Type");
 		}
-		// fill fields
+		// build source
 		number = Integer.parseInt(splits[0]);
-		if (type.ordinal() < MessageType.Status.ordinal()) // Broadcast -> no source
-			source = -1;
-		else
-			source = Integer.parseInt(splits[2]);
 		
+		if (type.ordinal() < MessageType.Status.ordinal()) // Broadcast -> no source
+			source = null;
+		else {
+			int source_id = Integer.parseInt(splits[2]);
+			this.source = registry.getUser(source_id);
+			if(this.source == null){
+				this.source = registry.registerUser(source_id);
+			}
+		}
+		
+		// build target
 		if (type.ordinal() < MessageType.Follow.ordinal()) // Broadcast && Status -> no target
-			target = -1;
-		else
-			target = Integer.parseInt(splits[3]);
+			target = null;
+		else {
+			int target_id = Integer.parseInt(splits[3]);
+			this.target = registry.getUser(target_id);
+			if(this.target == null){
+				this.target = registry.registerUser(target_id);
+			}
+		}
 	}
 	
 	/**
@@ -101,18 +113,18 @@ public class Message implements Comparable<Message>{
 	/**
 	 * Get-Method for source id
 	 * <THREAD SAFE>
-	 * @return source id if possible, -1 if no source is known
+	 * @return source if possible, null if no source is known
 	 */
-	public int getSource(){
+	public User getSource(){
 		return source;
 	}
 
 	/**
 	 * Get-Method for target id
 	 * <THREAD SAFE>
-	 * @return target id if possible, -1 if no concrete target is known
+	 * @return target if possible, null if no concrete target is known
 	 */
-	public int getTarget(){
+	public User getTarget(){
 		return target;
 	}
 
@@ -124,6 +136,7 @@ public class Message implements Comparable<Message>{
 	public String getPayload(){
 		return payload;
 	}
+
 	/**
 	 * Determines if two messages or a message and an Integer are equal. 
 	 * More formally, two messages are equal, if and only if they have the same sequence number.

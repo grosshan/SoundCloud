@@ -27,26 +27,18 @@ public class User {
 	private ArrayList<User> followers;
 	
 	/**
-	 * Create a user with specific id and the maximal amount of messages that can be stored memory.
+	 * Create a user with specific id.
 	 * @param id the id of the user
 	 * @param numMessages the number of messages that can be stored in memory
 	 */
-	public User(int id, int numMessages){
+	public User(int id){
 		myID = id;
-		messages = new ArrayDeque<Message>(numMessages);
+		messages = new ArrayDeque<Message>();
 		followers = new ArrayList<User>();
 		myLock = new ReentrantLock();
 		
 		mySocket = null;
 		myWriter = null;
-	}
-
-	/**
-	 * Create a user with specific id and the maximal amount of 30 messages that can be stored memory.
-	 * @param id the id of the user
-	 */
-	public User(int id){
-		this(id, 30);
 	}
 	
 	/**
@@ -123,9 +115,11 @@ public class User {
 	 * @throws IOException Connection could not be closed.
 	 */
 	public void closeConnection() throws IOException{
-		mySocket.close();
+		if(mySocket != null)
+			mySocket.close();
 		mySocket = null;
-		myWriter.close();
+		if(myWriter != null)
+			myWriter.close();
 		myWriter = null;
 	}
 	

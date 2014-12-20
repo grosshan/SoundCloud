@@ -64,7 +64,7 @@ public class SourceListener extends Thread{
 					
 					// end of message -> add to queue
 					if(buffer[i] == '\n'){
-						queue.add(new Message(message.toString()));
+						//queue.add(new Message(message.toString()));
 						message = new StringBuffer(64);
 					}
 				}

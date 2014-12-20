@@ -83,15 +83,16 @@ public class UserTest {
 			Socket u_end = new Socket("localhost",u1_listen.port);
 			Thread.sleep(100);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(u1_listen.socket.getInputStream()));
-			User u1 = new User(1,30);
-
+			User u1 = new User(1);
+			UserRegistry registry = new UserRegistry();
+			registry.registerUser(u1);
 			// store messages
 			String s1 = "1|F|1|1\r";
 			String s2 = "2|F|1|1\r\n";
 			String s3 = "3|F|1|1\n";
-			u1.sendMessage(new Message(s1));
-			u1.sendMessage(new Message(s2));
-			u1.sendMessage(new Message(s3));
+			u1.sendMessage(new Message(s1, registry));
+			u1.sendMessage(new Message(s2, registry));
+			u1.sendMessage(new Message(s3, registry));
 			
 			assertNotNull(u1.getMessages());
 			assertTrue(u1.getMessages().size() == 3);
@@ -112,7 +113,7 @@ public class UserTest {
 			assertTrue((new String(ch2)).equals(s2));
 			assertTrue((new String(ch3)).equals(s3));
 
-			u1.sendMessage(new Message(s1));
+			u1.sendMessage(new Message(s1, registry));
 			reader.read(ch1, 0, s1.length());
 			assertTrue((new String(ch1)).equals(s1));
 			

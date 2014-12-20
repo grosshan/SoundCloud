@@ -4,11 +4,7 @@
  */
 package soundcloud.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class SoundCloudStarter {
 
@@ -17,21 +13,27 @@ public class SoundCloudStarter {
 	 * @param args command-line arguments are ignored at this point.
 	 */
 	public static void main(String[] args) {
+		int numThreads = 4;
+		int sourcePort = 9090;
+		int userPort = 9099;
+
 		try {
-			System.out.println("Start Server");
-			ServerSocket serv = new ServerSocket(9090);
-			System.out.println("Start Server Socket");
-			Socket socket_serv = serv.accept();
 			
-			BufferedReader read = new BufferedReader(
-									new InputStreamReader(socket_serv.getInputStream())
-									);
-			socket_serv.close();
-			serv.close();
+			UserRegistry registry = new UserRegistry();
+			MessageQueue queue = new MessageQueue();
+			
+			MessageCollector collector = new MessageCollector(queue, registry, numThreads);
+			ClientListener userListen = new ClientListener(registry, userPort);
+			SourceListener sourceListen = new SourceListener(queue, sourcePort);
+			
+			collector.start();
+			userListen.start();
+			sourceListen.start();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+			
 	}
 
 }

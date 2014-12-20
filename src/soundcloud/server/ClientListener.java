@@ -51,10 +51,13 @@ public class ClientListener extends Thread {
 			try{
 				Socket socket = servSocket.accept();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-				User u = new User(Integer.parseInt(reader.readLine()));
-				u.openConnection(socket);
+				int id = Integer.parseInt(reader.readLine());
+
+				registry.registerUser(id);
+				User u = registry.getUser(id);
 				
-				registry.registerUser(u);
+				u.closeConnection();
+				u.openConnection(socket);
 				
 			} catch (IOException e){
 				e.printStackTrace();

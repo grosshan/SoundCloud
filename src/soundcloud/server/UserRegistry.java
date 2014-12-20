@@ -48,21 +48,26 @@ public class UserRegistry {
 	 * Register a new user in registry with given id. If a user with same id already exists, nothing will be done.
 	 * <THREAD SAFE>
 	 * @param id user-id
+	 * @return user that was registered
 	 */
-	public void registerUser(int id){
-		registerUser(new User(id));
+	public User registerUser(int id){
+		return registerUser(new User(id));
 	}
 
 	/**
 	 * Register a new user in registry. If a user with same id already exists, nothing will be done.
 	 * <THREAD SAFE>
 	 * @param user user that should be registered
+	 * @return user that was registered
 	 */
-	public void registerUser(User user){
-		if(getUser(user.getID()) != null) return;
+	public User registerUser(User user){
 		lock.lock();
-		registry.put(user.getID(), user);
+		if(getUser(user.getID()) != null) 
+			return getUser(user.getID());
+		else 
+			registry.put(user.getID(), user);
 		lock.unlock();
+		return user;
 	}
 	/**
 	 * Searches for a specific user in the registry

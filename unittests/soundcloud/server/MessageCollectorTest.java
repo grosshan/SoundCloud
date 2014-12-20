@@ -9,8 +9,8 @@ public class MessageCollectorTest {
 	@Test
 	public void orderTest() {
 		
-		User u1 = new User(1,100);
-		User u2 = new User(2,100);
+		User u1 = new User(1);
+		User u2 = new User(2);
 		UserRegistry registry = new UserRegistry();
 		registry.registerUser(u1);
 		registry.registerUser(u2);
@@ -28,7 +28,7 @@ public class MessageCollectorTest {
 			
 			Message m = null;
 			try{
-				m = new Message(s);
+				m = new Message(s, registry);
 			} catch (Exception e){
 				e.printStackTrace();
 				fail("Unexpected Exception: " + e.getMessage());
@@ -67,9 +67,9 @@ public class MessageCollectorTest {
 	@Test
 	public void msgTest() {
 		
-		User u1 = new User(1,100);
-		User u2 = new User(2,100);
-		User u3 = new User(3,100);
+		User u1 = new User(1);
+		User u2 = new User(2);
+		User u3 = new User(3);
 		UserRegistry registry = new UserRegistry();
 		registry.registerUser(u1);
 		registry.registerUser(u2);
@@ -78,24 +78,24 @@ public class MessageCollectorTest {
 		MessageQueue queue = new MessageQueue();
 		try{
 			// follow/unfollow
-			queue.add(new Message("1|F|2|1"));
-			queue.add(new Message("2|F|3|2"));
-			queue.add(new Message("3|F|3|1"));
-			queue.add(new Message("4|F|1|2"));
-			queue.add(new Message("5|U|1|2"));
+			queue.add(new Message("1|F|2|1", registry));
+			queue.add(new Message("2|F|3|2", registry));
+			queue.add(new Message("3|F|3|1", registry));
+			queue.add(new Message("4|F|1|2", registry));
+			queue.add(new Message("5|U|1|2", registry));
 			
 			// priv
-			queue.add(new Message("6|P|2|1"));
-			queue.add(new Message("7|P|1|2"));
-			queue.add(new Message("8|P|2|3"));
+			queue.add(new Message("6|P|2|1", registry));
+			queue.add(new Message("7|P|1|2", registry));
+			queue.add(new Message("8|P|2|3", registry));
 			
 			// status
-			queue.add(new Message("9|S|1"));
-			queue.add(new Message("10|S|2"));
-			queue.add(new Message("11|S|3"));
+			queue.add(new Message("9|S|1", registry));
+			queue.add(new Message("10|S|2", registry));
+			queue.add(new Message("11|S|3", registry));
 
 			// broad
-			queue.add(new Message("12|B"));
+			queue.add(new Message("12|B", registry));
 		} catch (Exception e){
 			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());

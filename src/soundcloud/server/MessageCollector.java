@@ -59,7 +59,6 @@ public class MessageCollector{
 		@Override
 		public void run() {
 			while(!this.isInterrupted()){
-				
 				// lock queue & collect message
 				this.queueLock.lock();
 				Message m = this.queue.poll();
@@ -68,7 +67,8 @@ public class MessageCollector{
 					this.interrupt();
 					this.queueLock.unlock();
 				}
-				else { // we have a message
+				else { 
+					// we have a message
 					
 					// determine recipients
 					Collection<User> recipients;
@@ -77,24 +77,24 @@ public class MessageCollector{
 						recipients = registry.getAllUser();
 						break;
 					case Status: // rec: followers
-						recipients = registry.getUser(m.getSource()).getFollowers();
+						recipients = m.getSource().getFollowers();
 						break;
 					case Unfollow: // rec: none
 						recipients = new ArrayList<User>();
 						break;
 					default: // rec: target
 						recipients = new ArrayList<User>();
-						recipients.add(registry.getUser(m.getTarget()));
+						recipients.add(m.getTarget());
 						break;
 					}
 					
 					// determine follow/unfollow operation on users
 					switch(m.getType()){
 					case Unfollow:
-						registry.getUser(m.getTarget()).removeFollower(registry.getUser(m.getSource()));
+						m.getTarget().removeFollower(m.getSource());
 						break;
 					case Follow:
-						registry.getUser(m.getTarget()).addFollower(registry.getUser(m.getSource()));
+						m.getTarget().addFollower(m.getSource());
 						break;
 					default:
 						break;
@@ -105,14 +105,14 @@ public class MessageCollector{
 						u.lock();
 					}
 					
-					// unlock queue
-					this.queueLock.unlock();
 					
 					// send messages & unlock recipients
 					for(User u : recipients){
 						u.sendMessage(m);
 						u.unlock();
 					}
+					// unlock queue
+					this.queueLock.unlock();
 				}
 			}
 		}

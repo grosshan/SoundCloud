@@ -55,9 +55,9 @@ public class ClientListenerTest {
 			User first = registry.getUser(292);
 			String s1 = "66|F|60|50\r\n";
 			String s2 = "1|U|12|9\r\n";
-			first.sendMessage(new Message(s1));
+			first.sendMessage(new Message(s1, registry));
 			User second = registry.getUser(13);
-			second.sendMessage(new Message(s2));
+			second.sendMessage(new Message(s2, registry));
 			
 			char[] ch1 = new char[s1.length()];
 			char[] ch2 = new char[s2.length()];

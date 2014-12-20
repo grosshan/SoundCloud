@@ -8,31 +8,32 @@ public class MessageTest {
 
 	@Test
 	public void parseTest() {
+		UserRegistry registry = new UserRegistry();
 		try{
-			Message m1 = new Message("666|F|60|50\r\n");
+			Message m1 = new Message("666|F|60|50\r\n", registry);
 			assertEquals(m1.getType(),Message.MessageType.Follow);
 			assertEquals(m1.getNumber(),666);
-			assertEquals(m1.getTarget(),50);
+			assertEquals(m1.getTarget().getID(),50);
 
-			Message m2 = new Message("1|U|12|9\r");
+			Message m2 = new Message("1|U|12|9\r", registry);
 			assertEquals(m2.getType(),Message.MessageType.Unfollow);
-			assertEquals(m2.getSource(),12);
+			assertEquals(m2.getSource().getID(),12);
 			assertEquals(m2.getPayload(),"1|U|12|9\r");
 
-			Message m3 = new Message("542532|B\n");
+			Message m3 = new Message("542532|B\n", registry);
 			assertEquals(m3.getType(),Message.MessageType.Broadcast);
-			assertEquals(m3.getSource(),-1);
-			assertEquals(m3.getTarget(),-1);
+			assertEquals(m3.getSource(),null);
+			assertEquals(m3.getTarget(),null);
 
-			Message m4 = new Message("43|P|32|56");
+			Message m4 = new Message("43|P|32|56", registry);
 			assertEquals(m4.getType(),Message.MessageType.Private);
 			assertEquals(m4.getNumber(),43);
-			assertEquals(m4.getTarget(),56);
+			assertEquals(m4.getTarget().getID(),56);
 
-			Message m5 = new Message("634|S|32");
+			Message m5 = new Message("634|S|32", registry);
 			assertEquals(m5.getType(),Message.MessageType.Status);
-			assertEquals(m5.getSource(),32);
-			assertEquals(m5.getTarget(),-1);
+			assertEquals(m5.getSource().getID(),32);
+			assertEquals(m5.getTarget(),null);
 		} catch(NumberFormatException e){
 			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
@@ -42,6 +43,7 @@ public class MessageTest {
 	@Test
 	public void parseExcTest() {
 		// all messages should throw an error
+		UserRegistry registry = new UserRegistry();
 		String[] messages = {
 				// 4 slot messages
 				"666|F|60|50|50",
@@ -63,7 +65,7 @@ public class MessageTest {
 		int sum_err = 0;
 		for(int i = 0; i < messages.length; i++){
 			try{
-				new Message(messages[i]);
+				new Message(messages[i], registry);
 			} catch (NumberFormatException e) {
 				sum_err++;
 			}
@@ -73,11 +75,12 @@ public class MessageTest {
 
 	@Test
 	public void compareTest() {
+		UserRegistry registry = new UserRegistry();
 		try{
-			Message m1 = new Message("666|F|60|50");
-			Message m2 = new Message("666|U|60|50");
-			Message m3 = new Message("30|S|60");
-			Message m4 = new Message("700|B");
+			Message m1 = new Message("666|F|60|50", registry);
+			Message m2 = new Message("666|U|60|50", registry);
+			Message m3 = new Message("30|S|60", registry);
+			Message m4 = new Message("700|B", registry);
 			
 			assertEquals(m1,m2);
 			assertEquals(m2,m1);

@@ -97,7 +97,7 @@ public class UserTest {
 			
 			// set up registry
 			User u1 = new User(1,1);
-			UserRegistry registry = new UserRegistry();
+			UserRegistry registry = new UserRegistry(1);
 			registry.registerUser(u1);
 			
 			// store messages

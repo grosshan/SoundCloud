@@ -27,6 +27,7 @@ public class User {
 	/**
 	 * Create a user with specific id and the number of pipes that should be used
 	 * @param id the id of the user
+	 * @param numPipes how many pipes should be used
 	 * @param numMessages the number of messages that can be stored in memory
 	 */
 	public User(int id, int numPipes){
@@ -52,7 +53,7 @@ public class User {
 
 	/**
 	 * Returns all followers for this user for the corresponding pipe
-	 * <THREAD SAFE>
+	 * @param threadID pipe ID
 	 * @return ArrayList of followers
 	 */
 	public LinkedList<User> getFollowers(int threadID){
@@ -61,13 +62,10 @@ public class User {
 	
 	/**
 	 * Returns all stored messages for this user.
-	 * <THREAD SAFE>
 	 * @return ArrayList of followers
 	 */
 	public LinkedList<Message> getMessages(){
-		synchronized(this){
 			return messages;
-		}
 	}
 
 	/**

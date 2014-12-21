@@ -144,8 +144,8 @@ public class MessageQueue {
 	 * @param m Message that should be added to the queue
 	 */	
 	public void offer(Message m, int id){
-		if(m.getNumber() % 10000 == 0)
-			System.out.println("Offer: " + m.getNumber() + " InSize: " + this.inputSize()  + " OutSize: " + this.outputSize());
+		if(m.getNumber() % 100000 == 0)
+			System.out.println("Message Nr.: " + m.getNumber() + " Input-Buffer Size: " + this.inputSize()  + " Output-Buffer Size: " + this.outputSize());
 		
 		synchronized(inList.get(id)){
 			inList.get(id).put(m.getNumber(), m);

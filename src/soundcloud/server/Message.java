@@ -34,6 +34,7 @@ public class Message implements Comparable<Message>{
 	/**
 	 * Creates a message object given a specific string representation of it.
 	 * @param payload pure string representation of the message
+	 * @param registry user registry where unknown users will be registered
 	 */
 	public Message(String payload, UserRegistry registry) throws NumberFormatException{
 		String[] splits = splitter.split(payload);
@@ -138,7 +139,7 @@ public class Message implements Comparable<Message>{
 	 * Determines if two messages or a message and an Integer are equal. 
 	 * More formally, two messages are equal, if and only if they have the same sequence number.
 	 * More formally, a messages and an integer are equal, if the sequence number corresponds to the integer.
-	 * <THREAD SAFE>
+	 * @param o Object to compare with
 	 */
 	public boolean equals(Object o){
 		if(o instanceof Message) return ((Message)o).number == this.number;
@@ -153,7 +154,6 @@ public class Message implements Comparable<Message>{
 	 * if #this < #arg0  then ret_val < 0
 	 * if #this == #arg0 then ret_val == 0
 	 * if #this > #arg0  then ret_val > 0
-	 * <THREAD SAFE>
 	 * @param arg0 Message that will be compared.
 	 */
 	public int compareTo(Message arg0) {

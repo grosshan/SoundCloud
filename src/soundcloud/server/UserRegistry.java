@@ -50,7 +50,6 @@ public class UserRegistry {
 	/**
 	 * Register a new user in registry with given id. 
 	 * If a user with same id already exists, nothing will be done.
-	 * <THREAD SAFE>
 	 * @param id user-id
 	 * @return user that was registered
 	 */
@@ -60,7 +59,6 @@ public class UserRegistry {
 
 	/**
 	 * Register a new user in registry. If a user with same id already exists, nothing will be done.
-	 * <THREAD SAFE>
 	 * @param user user that should be registered
 	 * @return user that was registered
 	 */
@@ -79,7 +77,6 @@ public class UserRegistry {
 	}
 	/**
 	 * Searches for a specific user in the registry
-	 * <THREAD SAFE>
 	 * @param id user-id to search for
 	 * @return true if a user was found, false otherwise.
 	 */

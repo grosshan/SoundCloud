@@ -24,6 +24,13 @@ public class SourceListener{
 	private ArrayList<MyListener> listeners;
 	private int port;
 
+	/**
+	 * A private class that represents a worker. Messages will be parsed and
+	 * sent to a message queue.
+	 * 
+	 * @author Michael Grosshans
+	 * @version 1.0
+	 */	
 	private class MyListener extends Thread{
 		
 		private int id;
@@ -60,8 +67,10 @@ public class SourceListener{
 	/**
 	 * Constructor. Will create a source listener with respect to the given queue and the given port.
 	 * @param queue queue, where messages should be stored.
+	 * @param registry a user registry where unknown user should be stored
 	 * @param port port, where the listener wants to listen to.
-	 * @throws IOException 
+	 * @param numPipes how many worker should be used
+	 * @throws IOException when connection could not be established
 	 */
 	public SourceListener(MessageQueue queue, UserRegistry registry, int port, int numPipes) throws IOException{
 		this.queue = queue;

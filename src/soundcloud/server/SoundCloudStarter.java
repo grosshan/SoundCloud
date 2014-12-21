@@ -18,6 +18,32 @@ public class SoundCloudStarter {
 		int sourcePort = 9090;
 		int userPort = 9099;
 
+		for(int i = 0; i < args.length - 1; i++){
+			switch(args[i]){
+			case "-slt":
+				numThreadsSource = Integer.parseInt(args[i+1]);
+				break;
+			case "-mct":
+				numThreadsClient = Integer.parseInt(args[i+1]);
+				break;
+			case "-eport":
+				sourcePort = Integer.parseInt(args[i+1]);
+				break;
+			case "-uport":
+				userPort = Integer.parseInt(args[i+1]);
+				break;
+			default:
+				break;
+			
+			}
+			
+		}
+		System.out.println("Configuration:");
+		System.out.println("  Input Worker:  " + numThreadsSource);
+		System.out.println("  Output Worker: " + numThreadsClient);
+		System.out.println("  Event Port:    " + sourcePort);
+		System.out.println("  Client Port:   " + userPort);
+		
 		try {
 			
 			UserRegistry registry = new UserRegistry(numThreadsClient);
@@ -31,7 +57,6 @@ public class SoundCloudStarter {
 			userListen.start();
 			sourceListen.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 			

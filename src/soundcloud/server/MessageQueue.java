@@ -18,14 +18,16 @@ public class MessageQueue {
 	private HardWorkingProcess myChineseWorker;
 	
 	/**
-	 * Subsequently, this Thread will bring messages from the input queue to the output queue.
-	 * @author grosshan
-	 */
+	 * A private class that represents a worker. 	 
+	 * Subsequently, this thread will bring messages from the input queue to the output queue.
+	 * 
+	 * @author Michael Grosshans
+	 * @version 1.0
+	 */	
 	private class HardWorkingProcess extends Thread{
 		
 		private MessageQueue queue;
 		private int writeCounter;
-		
 		
 		public HardWorkingProcess(MessageQueue queue){
 			this.queue = queue;
@@ -109,7 +111,6 @@ public class MessageQueue {
 
 	/**
 	 * An method that returns the current size of input queue. 
-	 * <THREAD SAFE>
 	 * @return size of the queue
 	 */	
 	public int inputSize(){
@@ -124,7 +125,6 @@ public class MessageQueue {
 
 	/**
 	 * An method that returns the current size of output queue. 
-	 * <THREAD SAFE>
 	 * @return size of the queue
 	 */	
 	public int outputSize(){
@@ -140,8 +140,8 @@ public class MessageQueue {
 	/**
 	 * An method for adding an element. The counter of the next smallest element will be increased,
 	 * and a threads that wait for an element to poll is notified when this element was added 
-	 * <THREAD SAFE>
 	 * @param m Message that should be added to the queue
+	 * @param id the thread id that offers this message
 	 */	
 	public void offer(Message m, int id){
 		if(m.getNumber() % 100000 == 0)
@@ -155,7 +155,6 @@ public class MessageQueue {
 	/**
 	 * An method for polling an element for sender with specific id. Waits until the a message is available.
 	 * Only one poll at a time is allowed! 
-	 * <THREAD SAFE>
 	 * @param id the id of the polling sender process
 	 * @return the message when it becomes available, returns null if this operation was interrupted
 	 */	

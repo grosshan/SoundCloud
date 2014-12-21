@@ -19,7 +19,7 @@ public class MessageCollector{
 	private ArrayList<MyExecutor> executors;
 	
 	/**
-	 * A private class that represents a worker. Messages will be parsed and
+	 * A private class that represents a worker. Messages will 
 	 * sent - ordered and in parallel - to user clients.
 	 * 
 	 * @author Michael Grosshans
@@ -125,7 +125,6 @@ public class MessageCollector{
 	
 	/**
 	 * Start the working process. e.g. all threads will be created and started
-	 * <NOT THREAD SAFE>
 	 */
 	public void start(){
 		for(int i = 0; i < this.executors.size(); i++){
@@ -135,7 +134,6 @@ public class MessageCollector{
 	
 	/**
 	 * End all working processes.
-	 * <NOT THREAD SAFE>
 	 */
 	public void stop(){
 		for(int i = 0; i < this.executors.size(); i++){

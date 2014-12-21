@@ -28,7 +28,6 @@ public class User {
 	 * Create a user with specific id and the number of pipes that should be used
 	 * @param id the id of the user
 	 * @param numPipes how many pipes should be used
-	 * @param numMessages the number of messages that can be stored in memory
 	 */
 	public User(int id, int numPipes){
 		myID = id;
@@ -44,7 +43,6 @@ public class User {
 	
 	/**
 	 * Returns the id for this user.
-	 * <THREAD SAFE>
 	 * @return id
 	 */
 	public int getID(){
@@ -70,7 +68,6 @@ public class User {
 
 	/**
 	 * Register a connection for this user. Stored messages will be immediately flushed out.
-	 * <THREAD SAFE>
 	 * @param socket the socket that corresponds to the user
 	 * @throws IOException Connection could not be opened.
 	 */
@@ -88,7 +85,6 @@ public class User {
 	
 	/**
 	 * Closes the current connection for this user.
-	 * <THREAD SAFE>
 	 * @throws IOException Connection could not be closed.
 	 */
 	public void closeConnection() throws IOException{
@@ -146,7 +142,6 @@ public class User {
 
 	/**
 	 * Check if two users are equal. Two Users are equal if they have the same id.
-	 * <THREAD SAFE>
 	 * @param o An object to compare with.
 	 * @return false if o is not a user, or a different user.
 	 */

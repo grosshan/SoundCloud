@@ -5,9 +5,9 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ UserTest.class, UserRegistryTest.class//, MessageTest.class,
+@SuiteClasses({ UserTest.class, UserRegistryTest.class, //MessageTest.class,
 				//MessageCollectorTest.class, SourceListenerTest.class,
-				//ClientListenerTest.class
+				ClientListenerTest.class
 				})
 public class TestRunner {
 

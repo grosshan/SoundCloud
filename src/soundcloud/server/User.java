@@ -11,9 +11,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.LinkedList;
 
 public class User {
 	
@@ -21,21 +20,22 @@ public class User {
 
 	private Socket mySocket;
 	private PrintWriter myWriter;
-	private ReentrantLock myLock;
 	
-	private ArrayDeque<Message> messages;
-	private ArrayList<User> followers;
+	private LinkedList<Message> messages;
+	private ArrayList<LinkedList<User>> followers;
 	
 	/**
-	 * Create a user with specific id.
+	 * Create a user with specific id and the number of pipes that should be used
 	 * @param id the id of the user
 	 * @param numMessages the number of messages that can be stored in memory
 	 */
-	public User(int id){
+	public User(int id, int numPipes){
 		myID = id;
-		messages = new ArrayDeque<Message>();
-		followers = new ArrayList<User>();
-		myLock = new ReentrantLock();
+		messages = new LinkedList<Message>();
+		followers = new ArrayList<LinkedList<User>>(numPipes);
+		for(int i = 0; i < numPipes; i++){
+			followers.add(i, new LinkedList<User>());
+		}
 		
 		mySocket = null;
 		myWriter = null;
@@ -51,12 +51,12 @@ public class User {
 	}
 
 	/**
-	 * Returns all followers for this user.
+	 * Returns all followers for this user for the corresponding pipe
 	 * <THREAD SAFE>
 	 * @return ArrayList of followers
 	 */
-	public ArrayList<User> getFollowers(){
-		return followers;
+	public LinkedList<User> getFollowers(int threadID){
+		return followers.get(threadID);
 	}
 	
 	/**
@@ -64,99 +64,81 @@ public class User {
 	 * <THREAD SAFE>
 	 * @return ArrayList of followers
 	 */
-	public ArrayDeque<Message> getMessages(){
-		return messages;
-	}
-
-	/**
-	 * lock this user
-	 * <SYNCHRONIZATION>
-	 */
-	public void lock(){
-		myLock.lock();
-	}
-	
-	/**
-	 * unlock this user
-	 * <SYNCHRONIZATION>
-	 */
-	public void unlock(){
-		if (isLocked()) myLock.unlock();
-	}
-	
-	/**
-	 * Check if this user is locked or not
-	 * return true, if and only if the user is locked
-	 * <SYNCHRONIZATION>
-	 */
-	public boolean isLocked(){
-		return myLock.isLocked();
+	public LinkedList<Message> getMessages(){
+		synchronized(this){
+			return messages;
+		}
 	}
 
 	/**
 	 * Register a connection for this user. Stored messages will be immediately flushed out.
-	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
+	 * <THREAD SAFE>
 	 * @param socket the socket that corresponds to the user
 	 * @throws IOException Connection could not be opened.
 	 */
 	public void openConnection(Socket socket) throws IOException{
-		mySocket = socket;
-		myWriter = new PrintWriter(new OutputStreamWriter(mySocket.getOutputStream(),"UTF-8"));
-		
-		while(messages.size()>0){
-			myWriter.print(messages.pollFirst().getPayload());
+		synchronized(this){
+			mySocket = socket;
+			myWriter = new PrintWriter(new OutputStreamWriter(mySocket.getOutputStream(),"UTF-8"));
+			
+			while(messages.size()>0){
+				myWriter.print(messages.pollFirst().getPayload());
+			}
+			myWriter.flush();
 		}
-		myWriter.flush();
 	}
 	
 	/**
 	 * Closes the current connection for this user.
-	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
+	 * <THREAD SAFE>
 	 * @throws IOException Connection could not be closed.
 	 */
 	public void closeConnection() throws IOException{
-		if(mySocket != null)
-			mySocket.close();
-		mySocket = null;
-		if(myWriter != null)
-			myWriter.close();
-		myWriter = null;
+		synchronized(this){
+			if(mySocket != null)
+				mySocket.close();
+			mySocket = null;
+			if(myWriter != null)
+				myWriter.close();
+			myWriter = null;
+		}
 	}
 	
 	/**
 	 * Add a follower to this user. If the user is already a follower this request will be ignored. 
-	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param follower the new follower
 	 */
 	public void addFollower(User follower) {
-		if(!followers.contains(follower)){
-			followers.add(follower);
+		int pipe_id = follower.getID() % followers.size();
+		if(!followers.get(pipe_id).contains(follower)){
+			followers.get(pipe_id).add(follower);
 		}
 	}
 	
 	/**
 	 * The given former follower will be removed.
-	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param follower that should be removed
 	 */
 	public void removeFollower(User follower){
-		followers.remove(follower);
+		int pipe_id = follower.getID() % followers.size();
+		followers.get(pipe_id).remove(follower);
 	}
 	
 	/**
 	 * Send a specific message via an open connection.
 	 * If no valid connection is open, the message will be stored in memory instead.
-	 * <NOT THREAD SAFE, use SYNCHRONIZATION>
 	 * @param message message to be sent
 	 */
 	public void sendMessage(Message message){
-		if(mySocket == null || mySocket.isClosed() ||
-				!mySocket.isConnected() || !mySocket.isBound()){ // socket is not good, store message
-			messages.add(message);
-		} else {
-			// send message via socket
-			myWriter.print(message.getPayload());
-			myWriter.flush();
+		synchronized(this){
+			if(mySocket == null || mySocket.isClosed() ||
+					!mySocket.isConnected() || !mySocket.isBound()){ // socket is not good, store message
+				messages.add(message);
+			} else {
+				// send message via socket
+				myWriter.print(message.getPayload());
+				myWriter.flush();
+			}
 		}
 	}
 

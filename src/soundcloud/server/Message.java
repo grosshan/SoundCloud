@@ -23,8 +23,8 @@ public class Message implements Comparable<Message>{
 	static final Pattern splitter= Pattern.compile("[\\|\r\n]");
 	
 	// parsed information
-	private MessageType type;
-	private int number;
+	private final MessageType type;
+	private final int number;
 	private User source;
 	private User target;
 	
@@ -94,7 +94,6 @@ public class Message implements Comparable<Message>{
 	
 	/**
 	 * Get-Method for message type
-	 * <THREAD SAFE>
 	 * @return message type
 	 */
 	public MessageType getType(){
@@ -103,7 +102,6 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for sequence number
-	 * <THREAD SAFE>
 	 * @return sequence number
 	 */
 	public int getNumber(){
@@ -112,7 +110,6 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for source id
-	 * <THREAD SAFE>
 	 * @return source if possible, null if no source is known
 	 */
 	public User getSource(){
@@ -121,7 +118,6 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for target id
-	 * <THREAD SAFE>
 	 * @return target if possible, null if no concrete target is known
 	 */
 	public User getTarget(){
@@ -130,7 +126,6 @@ public class Message implements Comparable<Message>{
 
 	/**
 	 * Get-Method for pure string representation
-	 * <THREAD SAFE>
 	 * @return pure representation
 	 */
 	public String getPayload(){

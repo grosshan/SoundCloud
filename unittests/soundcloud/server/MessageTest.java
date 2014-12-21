@@ -8,7 +8,7 @@ public class MessageTest {
 
 	@Test
 	public void parseTest() {
-		UserRegistry registry = new UserRegistry();
+		UserRegistry registry = new UserRegistry(2);
 		try{
 			Message m1 = new Message("666|F|60|50\r\n", registry);
 			assertEquals(m1.getType(),Message.MessageType.Follow);
@@ -43,7 +43,7 @@ public class MessageTest {
 	@Test
 	public void parseExcTest() {
 		// all messages should throw an error
-		UserRegistry registry = new UserRegistry();
+		UserRegistry registry = new UserRegistry(2);
 		String[] messages = {
 				// 4 slot messages
 				"666|F|60|50|50",
@@ -75,7 +75,7 @@ public class MessageTest {
 
 	@Test
 	public void compareTest() {
-		UserRegistry registry = new UserRegistry();
+		UserRegistry registry = new UserRegistry(2);
 		try{
 			Message m1 = new Message("666|F|60|50", registry);
 			Message m2 = new Message("666|U|60|50", registry);

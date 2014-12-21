@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ UserTest.class, UserRegistryTest.class, MessageTest.class,
-				//MessageCollectorTest.class, SourceListenerTest.class,
+				SourceListenerTest.class, //MessageCollectorTest.class, 
 				ClientListenerTest.class
 				})
 public class TestRunner {

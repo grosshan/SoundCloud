@@ -20,6 +20,7 @@ public class SourceListener{
 	private UserRegistry registry;
 	private ServerSocket servSocket;
 	private Socket socket;
+	private BufferedReader reader;
 	private ArrayList<MyListener> listeners;
 	private int port;
 
@@ -36,15 +37,18 @@ public class SourceListener{
 		
 		@Override 
 		public void run(){
-			BufferedReader reader  = null;
-			String message = null;
 			try{
-				reader = new BufferedReader(new InputStreamReader(this.source.socket.getInputStream(),"UTF-8"));
+				String message = null;
 				while(!isInterrupted()){
-					synchronized(socket){
-						message = reader.readLine() + "\r\n";
+					synchronized(source.reader){
+						message = source.reader.readLine();
 					}
-					this.source.queue.offer(new Message(message, registry), id);
+					if(message == null)
+						this.interrupt();
+					else {
+						message += "\r\n";
+						this.source.queue.offer(new Message(message, registry), id);
+					}
 				}
 			} catch(IOException e) {
 				e.printStackTrace();
@@ -65,8 +69,8 @@ public class SourceListener{
 		this.servSocket = new ServerSocket(port);
 		this.port = this.servSocket.getLocalPort();
 		this.listeners = new ArrayList<MyListener>(numPipes);
-		for(int i = 0; i < this.listeners.size(); i++){
-			this.listeners.set(i, new MyListener(this,i));
+		for(int i = 0; i < numPipes; i++){
+			this.listeners.add(new MyListener(this,i));
 		}
 	}
 
@@ -86,6 +90,7 @@ public class SourceListener{
 		try {
 
 			this.socket = servSocket.accept();
+			this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
 			for(int i = 0; i < this.listeners.size(); i++){
 				this.listeners.get(i).start();
 			}

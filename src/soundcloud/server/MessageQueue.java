@@ -23,15 +23,12 @@ public class MessageQueue {
 	 */
 	private class HardWorkingProcess extends Thread{
 		
-		private ArrayList<HashMap<Integer, Message>> inList;
-		private ArrayList<LinkedBlockingQueue<Message>> outList;
+		private MessageQueue queue;
 		private int writeCounter;
 		
 		
-		public HardWorkingProcess(ArrayList<HashMap<Integer, Message>> inList, 
-				ArrayList<LinkedBlockingQueue<Message>> outList){
-			this.inList = inList;
-			this.outList = outList;
+		public HardWorkingProcess(MessageQueue queue){
+			this.queue = queue;
 			writeCounter = 1;
 		}
 		
@@ -44,11 +41,12 @@ public class MessageQueue {
 				
 				// search the next message
 				while (!found){
-					synchronized(inList.get(numTry % inList.size())){
-						m = inList.get(numTry % inList.size()).remove(writeCounter);
+					synchronized(queue.inList.get(numTry % queue.inList.size())){
+						m = queue.inList.get(numTry % queue.inList.size()).remove(writeCounter);
 					}
 					if(m != null)
 						found = true;
+					numTry++;
 				}
 				
 				// put it to the output queues
@@ -56,9 +54,9 @@ public class MessageQueue {
 				case Follow:
 				case Private:
 				case Unfollow:
-					int t_pipe = m.getTarget().getID() % outList.size();
+					int t_pipe = m.getTarget().getID() % queue.outList.size();
 					try {
-						outList.get(t_pipe).put(m);
+						queue.outList.get(t_pipe).put(m);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 						this.interrupt();
@@ -66,9 +64,9 @@ public class MessageQueue {
 					break;
 				case Broadcast:
 				case Status:
-					for(int i = 0; i < outList.size(); i++){
+					for(int i = 0; i < queue.outList.size(); i++){
 						try {
-							outList.get(i).put(m);
+							queue.outList.get(i).put(m);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 							this.interrupt();
@@ -83,29 +81,49 @@ public class MessageQueue {
 		}
 	}
 	
+	/**
+	 * Constructor
+	 * @param sourcePipes number of pipes to read from
+	 * @param clientPipes number of pipes to write to
+	 */
 	public MessageQueue(int sourcePipes, int clientPipes){
 		inList = new ArrayList<HashMap<Integer, Message>>(sourcePipes);
 		for(int i = 0; i < sourcePipes; i++){
-			inList.set(i, new HashMap<Integer, Message>(1000));
+			inList.add(new HashMap<Integer, Message>(1000));
 		}
 		outList = new ArrayList<LinkedBlockingQueue<Message>>(clientPipes);
 		for(int i = 0; i < clientPipes; i++){
-			outList.set(i, new LinkedBlockingQueue<Message>());
+			outList.add(new LinkedBlockingQueue<Message>());
 		}
-		myChineseWorker = new HardWorkingProcess(inList, outList);
+		myChineseWorker = new HardWorkingProcess(this);
 		myChineseWorker.start();
 	}
 
 	/**
-	 * An method that returns the size of the queue. 
+	 * An method that returns the current size of input queue. 
 	 * <THREAD SAFE>
 	 * @return size of the queue
 	 */	
-	public int size(){
+	public int inputSize(){
 		int size = 0;
 		for(int i = 0; i < inList.size(); i++){
 			synchronized(inList.get(i)){
 				size += inList.get(i).size();
+			}
+		}
+		return size;
+	}
+
+	/**
+	 * An method that returns the current size of output queue. 
+	 * <THREAD SAFE>
+	 * @return size of the queue
+	 */	
+	public int outputSize(){
+		int size = 0;
+		for(int i = 0; i < outList.size(); i++){
+			synchronized(outList.get(i)){
+				size += outList.get(i).size();
 			}
 		}
 		return size;
@@ -119,7 +137,7 @@ public class MessageQueue {
 	 */	
 	public void offer(Message m, int id){
 		if(m.getNumber() % 10000 == 0)
-			System.out.println("Offer: " + m.getNumber() + " Msize: " + this.size());
+			System.out.println("Offer: " + m.getNumber() + " InSize: " + this.inputSize()  + " OutSize: " + this.outputSize());
 		
 		synchronized(inList.get(id)){
 			inList.get(id).put(m.getNumber(), m);

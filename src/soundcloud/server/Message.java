@@ -39,7 +39,10 @@ public class Message implements Comparable<Message>{
 		String[] splits = splitter.split(payload);
 		
 		this.payload = payload;
-		if (splits.length < 2) throw new NumberFormatException("Too less fields");
+		if (splits.length < 2) {
+			System.out.println(this.payload);
+			throw new NumberFormatException("Too less fields");
+		}
 		
 		// extract message type & check number of fields
 		switch(splits[1]){

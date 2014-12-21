@@ -16,7 +16,6 @@ public class MessageCollector{
 
 	private MessageQueue queue;
 	private UserRegistry registry;
-	private ReentrantLock queueLock;
 	private ArrayList<MyExecutor> executors;
 	
 	/**
@@ -28,91 +27,79 @@ public class MessageCollector{
 	 */	
 	private class MyExecutor extends Thread{
 
-		private UserRegistry registry;
-		private ReentrantLock queueLock;
-		private MessageQueue queue;
+		private MessageCollector collector;
+		private int id;
 	
 		/**
-		 * Constructor that creates this runnable object and register the shared lock, queue and
-		 * registry object.
-		 * @param registry the shared registry
-		 * @param queueLock the shared lock
-		 * @param queue the shared queue
+		 * Constructor that creates this runnable object and register invoking MessageCollector
+		 * @param collector the parent object
+		 * @param id the id of this thread (corresponds to the pipe)
 		 */
-		public MyExecutor(UserRegistry registry,
-				ReentrantLock queueLock, MessageQueue queue){
-			this.registry = registry;
-			this.queueLock = queueLock;
-			this.queue = queue;
+		public MyExecutor(MessageCollector collector, int id){
+			this.collector = collector;
+			this.id = id;
 		}
 		
 		/**
-		 * Start this runnable object. It will run until it is interrupted. Protocol:
-		 * 1. lock the queue
-		 * 2. collect message
-		 * 3. lock all recipients
-		 * 4. unlock queue
-		 * 5. for all recipients:
-		 * 5.1. send message
-		 * 5.2. send unlock recipient
+		 * Start this runnable object. It will run until it is interrupted. 
 		 */
 		@Override
 		public void run() {
 			while(!this.isInterrupted()){
 				// lock queue & collect message
-				this.queueLock.lock();
-				Message m = this.queue.poll();
+				Message m = this.collector.queue.poll(id);
 				
-				if (m == null) { // interrupted poll -> unlock queue and interrupt/close this thread
+				if (m == null) { // interrupted poll -> interrupt/close this thread
 					this.interrupt();
-					this.queueLock.unlock();
 				}
 				else { 
 					// we have a message
 					
 					// determine recipients
-					Collection<User> recipients;
+					Collection<User> recipients = null;
 					switch(m.getType()){
 					case Broadcast: // rec: all users
-						recipients = registry.getAllUser();
+						recipients = registry.getAllUser(id);
 						break;
 					case Status: // rec: followers
-						recipients = m.getSource().getFollowers();
+						recipients = m.getSource().getFollowers(id);
 						break;
 					case Unfollow: // rec: none
 						recipients = new ArrayList<User>();
 						break;
-					default: // rec: target
+					case Follow: // rec: maybe
+						recipients = new ArrayList<User>();
+						int t_pipe = m.getTarget().getID() % collector.executors.size(); 
+						if(t_pipe == id)
+							recipients.add(m.getTarget());
+						break;
+					case Private: // rec: target
 						recipients = new ArrayList<User>();
 						recipients.add(m.getTarget());
 						break;
 					}
 					
 					// determine follow/unfollow operation on users
+					int s_pipe;
 					switch(m.getType()){
 					case Unfollow:
-						m.getTarget().removeFollower(m.getSource());
+						s_pipe = m.getSource().getID() % collector.executors.size();
+						if(s_pipe == id)
+							m.getTarget().removeFollower(m.getSource());
 						break;
 					case Follow:
-						m.getTarget().addFollower(m.getSource());
+						s_pipe = m.getSource().getID() % collector.executors.size();
+						if(s_pipe == id)
+							m.getTarget().addFollower(m.getSource());
 						break;
 					default:
 						break;
 					}
 					
-					// lock all recipients
-					for(User u : recipients){
-						u.lock();
-					}
-					
-					
 					// send messages & unlock recipients
 					for(User u : recipients){
 						u.sendMessage(m);
-						u.unlock();
 					}
-					// unlock queue
-					this.queueLock.unlock();
 				}
 			}
 		}
@@ -129,10 +116,10 @@ public class MessageCollector{
 			UserRegistry registry, int numThreads){
 		this.queue = queue;
 		this.registry = registry;
-		this.queueLock = new ReentrantLock();
+		new ReentrantLock();
 		this.executors = new ArrayList<MyExecutor>();
 		for(int i = 0; i < numThreads; i++){
-			this.executors.add(new MyExecutor(this.registry, this.queueLock, this.queue));
+			this.executors.add(new MyExecutor(this, i));
 		}
 	}
 	

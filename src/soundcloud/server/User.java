@@ -109,7 +109,9 @@ public class User {
 	public void addFollower(User follower) {
 		int pipe_id = follower.getID() % followers.size();
 		if(!followers.get(pipe_id).contains(follower)){
-			followers.get(pipe_id).add(follower);
+			synchronized(followers.get(pipe_id)){
+				followers.get(pipe_id).add(follower);
+			}
 		}
 	}
 	
@@ -119,7 +121,9 @@ public class User {
 	 */
 	public void removeFollower(User follower){
 		int pipe_id = follower.getID() % followers.size();
-		followers.get(pipe_id).remove(follower);
+		synchronized(followers.get(pipe_id)){
+			followers.get(pipe_id).remove(follower);
+		}
 	}
 	
 	/**

@@ -50,29 +50,37 @@ public class MessageQueue {
 				}
 				
 				// put it to the output queues
-				switch (m.getType()){
-				case Follow:
-				case Private:
-				case Unfollow:
-					int t_pipe = m.getTarget().getID() % queue.outList.size();
-					try {
+				try{
+					int s_pipe, t_pipe;
+					
+					switch (m.getType()){
+					case Follow: // register in source & target pipe (but only once)
+						s_pipe = m.getSource().getID() % queue.outList.size();
+						t_pipe = m.getTarget().getID() % queue.outList.size();
+						if(s_pipe != t_pipe){
+							queue.outList.get(s_pipe).put(m);
+							queue.outList.get(t_pipe).put(m);
+						} else 
+							queue.outList.get(s_pipe).put(m);
+						break;
+					case Unfollow: // Follow / Unfollow -> source too (synch with status update)
+						s_pipe = m.getSource().getID() % queue.outList.size();
+						queue.outList.get(s_pipe).put(m);
+						break;
+					case Private: // Follow / Unfollow / Private
+						t_pipe = m.getTarget().getID() % queue.outList.size();
 						queue.outList.get(t_pipe).put(m);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						this.interrupt();
-					}
-					break;
-				case Broadcast:
-				case Status:
-					for(int i = 0; i < queue.outList.size(); i++){
-						try {
+						break;
+					case Broadcast:
+					case Status:
+						for(int i = 0; i < queue.outList.size(); i++){
 							queue.outList.get(i).put(m);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-							this.interrupt();
 						}
+						break;
 					}
-					break;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					this.interrupt();
 				}
 				
 				// prepare for next element

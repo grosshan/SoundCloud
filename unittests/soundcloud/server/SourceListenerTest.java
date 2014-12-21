@@ -28,6 +28,7 @@ public class SourceListenerTest {
 			
 			// send messages to listener
 			out.print("12|S|1\r\n");
+			out.print("13|U|3|4\r\n");
 			out.print("11|F|3|4\r\n");
 			out.print("2|F|2|3\r\n");
 			out.print("3|B\r\n");
@@ -44,15 +45,18 @@ public class SourceListenerTest {
 			
 			// check if messages are here
 			assertTrue(queue.inputSize() == 0);
-			assertTrue(queue.outputSize() == 20);
+			assertTrue(queue.outputSize() == 26);
 			
 			// check all queues and elements seperately
 			assertTrue(queue.poll(0).getNumber() == 2);
 			assertTrue(queue.poll(0).getNumber() == 3);
+			assertTrue(queue.poll(0).getNumber() == 4);
 			assertTrue(queue.poll(0).getNumber() == 8);
 			assertTrue(queue.poll(0).getNumber() == 9);
 			assertTrue(queue.poll(0).getNumber() == 10);
+			assertTrue(queue.poll(0).getNumber() == 11);
 			assertTrue(queue.poll(0).getNumber() == 12);
+			assertTrue(queue.poll(0).getNumber() == 13);
 
 			assertTrue(queue.poll(1).getNumber() == 1);
 			assertTrue(queue.poll(1).getNumber() == 3);
@@ -63,11 +67,14 @@ public class SourceListenerTest {
 			assertTrue(queue.poll(1).getNumber() == 11);
 			assertTrue(queue.poll(1).getNumber() == 12);
 
+			assertTrue(queue.poll(2).getNumber() == 2);
 			assertTrue(queue.poll(2).getNumber() == 3);
 			assertTrue(queue.poll(2).getNumber() == 4);
+			assertTrue(queue.poll(2).getNumber() == 5);
 			assertTrue(queue.poll(2).getNumber() == 7);
 			assertTrue(queue.poll(2).getNumber() == 8);
 			assertTrue(queue.poll(2).getNumber() == 9);
+			assertTrue(queue.poll(2).getNumber() == 10);
 			assertTrue(queue.poll(2).getNumber() == 12);
 
 			socket.close();

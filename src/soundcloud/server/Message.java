@@ -40,7 +40,6 @@ public class Message implements Comparable<Message>{
 		
 		this.payload = payload;
 		if (splits.length < 2) {
-			System.out.println(this.payload);
 			throw new NumberFormatException("Too less fields");
 		}
 		

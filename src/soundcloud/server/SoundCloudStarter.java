@@ -13,18 +13,19 @@ public class SoundCloudStarter {
 	 * @param args command-line arguments are ignored at this point.
 	 */
 	public static void main(String[] args) {
-		int numThreads = 4;
+		int numThreadsSource = 4;
+		int numThreadsClient = 4;
 		int sourcePort = 9090;
 		int userPort = 9099;
 
 		try {
 			
 			UserRegistry registry = new UserRegistry();
-			MessageQueue queue = new MessageQueue();
+			MessageQueue queue = new MessageQueue(numThreadsSource, numThreadsClient);
 			
-			MessageCollector collector = new MessageCollector(queue, registry, numThreads);
+			MessageCollector collector = new MessageCollector(queue, registry, numThreadsClient);
 			ClientListener userListen = new ClientListener(registry, userPort);
-			SourceListener sourceListen = new SourceListener(queue, sourcePort);
+			SourceListener sourceListen = new SourceListener(queue, registry, sourcePort, numThreadsSource);
 			
 			collector.start();
 			userListen.start();

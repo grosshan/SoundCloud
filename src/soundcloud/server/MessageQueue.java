@@ -7,103 +7,140 @@
  */
 package soundcloud.server;
 
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class MessageQueue extends PriorityQueue<Message>{
+public class MessageQueue {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3407330088669891183L; // eclipse wants that
-	private int readCounter;
-	private int writeCounter;
+	private ArrayList<HashMap<Integer, Message>> inList;
+	private ArrayList<LinkedBlockingQueue<Message>> outList;
+	private HardWorkingProcess myChineseWorker;
 	
-	public MessageQueue(){
-		writeCounter = 1;
-		readCounter = 1;
-	}
-
-	// private class to search for a method without creating a complex method object (including parsing etc.)
-	private class MyInteger{
+	/**
+	 * Subsequently, this Thread will bring messages from the input queue to the output queue.
+	 * @author grosshan
+	 */
+	private class HardWorkingProcess extends Thread{
 		
-		public int i;
-		public MyInteger(int i){
-			this.i = i;
+		private ArrayList<HashMap<Integer, Message>> inList;
+		private ArrayList<LinkedBlockingQueue<Message>> outList;
+		private int writeCounter;
+		
+		
+		public HardWorkingProcess(ArrayList<HashMap<Integer, Message>> inList, 
+				ArrayList<LinkedBlockingQueue<Message>> outList){
+			this.inList = inList;
+			this.outList = outList;
+			writeCounter = 1;
 		}
 		
 		@Override
-		public boolean equals(Object o){
-			if(o instanceof Message) return ((Message)o).getNumber() == this.i;
-			if(o instanceof Integer) return ((Integer)o).intValue() == this.i;
-			return false;
-		}
-	}
-	/**
-	 * An overwritten method for adding an element. The counter of the next smallest element will be increased,
-	 * and a threads that wait for an element to poll is notified when this element was added 
-	 * <NOT THREAD SAFE>
-	 * @param m Message that should be added to the queue
-	 * @return true if and only if message was added
-	 */	
-	@Override
-	public boolean add(Message m){
-		return offer(m);
-	}
-	
-	/**
-	 * An overwritten method for adding an element. The counter of the next smallest element will be increased,
-	 * and a threads that wait for an element to poll is notified when this element was added 
-	 * <NOT THREAD SAFE>
-	 * @param m Message that should be added to the queue
-	 * @return true if and only if message was added
-	 */	
-	@Override
-	public boolean offer(Message m){
-		boolean ret_val;
-		if (m.getNumber() == writeCounter){ // a message we have waited for 
-			synchronized(this){ 
-				// probably a collector waits for this message to.
+		public void run(){
+			while(!isInterrupted()){
+				boolean found = false;
+				Message m = null;
+				int numTry = 0;
 				
-				// add element
-				ret_val = super.offer(m);
+				// search the next message
+				while (!found){
+					synchronized(inList.get(numTry % inList.size())){
+						m = inList.get(numTry % inList.size()).remove(writeCounter);
+					}
+					if(m != null)
+						found = true;
+				}
 				
-				// determine new writecounter
-				while(this.contains(new MyInteger(writeCounter)))
-					writeCounter++;
+				// put it to the output queues
+				switch (m.getType()){
+				case Follow:
+				case Private:
+				case Unfollow:
+					int t_pipe = m.getTarget().getID() % outList.size();
+					try {
+						outList.get(t_pipe).put(m);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						this.interrupt();
+					}
+					break;
+				case Broadcast:
+				case Status:
+					for(int i = 0; i < outList.size(); i++){
+						try {
+							outList.get(i).put(m);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+							this.interrupt();
+						}
+					}
+					break;
+				}
 				
-				// notify the collectors that wait for a specific element
-				if(writeCounter > readCounter);
-					this.notifyAll();
+				// prepare for next element
+				writeCounter++;
 			}
-		} else { // not the message we have waited for, just add the message
-			ret_val = super.offer(m);
 		}
+	}
+	
+	public MessageQueue(int sourcePipes, int clientPipes){
+		inList = new ArrayList<HashMap<Integer, Message>>(sourcePipes);
+		for(int i = 0; i < sourcePipes; i++){
+			inList.set(i, new HashMap<Integer, Message>(1000));
+		}
+		outList = new ArrayList<LinkedBlockingQueue<Message>>(clientPipes);
+		for(int i = 0; i < clientPipes; i++){
+			outList.set(i, new LinkedBlockingQueue<Message>());
+		}
+		myChineseWorker = new HardWorkingProcess(inList, outList);
+		myChineseWorker.start();
+	}
+
+	/**
+	 * An method that returns the size of the queue. 
+	 * <THREAD SAFE>
+	 * @return size of the queue
+	 */	
+	public int size(){
+		int size = 0;
+		for(int i = 0; i < inList.size(); i++){
+			synchronized(inList.get(i)){
+				size += inList.get(i).size();
+			}
+		}
+		return size;
+	}
+
+	/**
+	 * An method for adding an element. The counter of the next smallest element will be increased,
+	 * and a threads that wait for an element to poll is notified when this element was added 
+	 * <THREAD SAFE>
+	 * @param m Message that should be added to the queue
+	 */	
+	public void offer(Message m, int id){
+		if(m.getNumber() % 10000 == 0)
+			System.out.println("Offer: " + m.getNumber() + " Msize: " + this.size());
 		
-		return ret_val;		
+		synchronized(inList.get(id)){
+			inList.get(id).put(m.getNumber(), m);
+		}
 	}
 	
 	/**
-	 * An overwritten method for polling an element. Waits until the next expected message is available.
+	 * An method for polling an element for sender with specific id. Waits until the a message is available.
 	 * Only one poll at a time is allowed! 
-	 * <NOT THREAD SAFE>
+	 * <THREAD SAFE>
+	 * @param id the id of the polling sender process
 	 * @return the message when it becomes available, returns null if this operation was interrupted
 	 */	
-	@Override
-	public Message poll(){
-		if (writeCounter == readCounter) { 
-			// we have to wait until the needed message appears in the queue
-			synchronized(this){
-				try {
-					// wait until writecounter was increased
-					this.wait();
-				} catch (InterruptedException e) {
-					return null;
-				}
-			}
-		}
+	public Message poll(int id){
+		Message m;
 		
-		// now the needed message definitely exists
-		readCounter++;
-		return super.poll();
+		try {
+			m = outList.get(id).take();
+		} catch (InterruptedException e) {
+			m = null;
+		}
+		return m;
 	}
 }

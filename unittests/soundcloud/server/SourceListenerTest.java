@@ -14,7 +14,8 @@ public class SourceListenerTest {
 		
 		try {
 			MessageQueue queue = new MessageQueue();
-			SourceListener listen = new SourceListener(queue, 0);
+			UserRegistry registry = new UserRegistry();
+			SourceListener listen = new SourceListener(queue, registry, 0);
 			Thread t = new Thread(listen);
 			t.start();
 			

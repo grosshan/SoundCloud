@@ -8,7 +8,7 @@ public class MessageCollectorTest {
 
 	@Test
 	public void orderTest() {
-		
+
 		User u1 = new User(1);
 		User u2 = new User(2);
 		UserRegistry registry = new UserRegistry();
@@ -37,7 +37,6 @@ public class MessageCollectorTest {
 		}
 		
 		assertTrue(queue.size() == 99);
-		assertTrue(queue.peek().getNumber() == 1);
 		
 		MessageCollector collect = new MessageCollector(queue, registry, 4);
 		collect.start();
@@ -78,31 +77,30 @@ public class MessageCollectorTest {
 		MessageQueue queue = new MessageQueue();
 		try{
 			// follow/unfollow
-			queue.add(new Message("1|F|2|1", registry));
-			queue.add(new Message("2|F|3|2", registry));
-			queue.add(new Message("3|F|3|1", registry));
-			queue.add(new Message("4|F|1|2", registry));
-			queue.add(new Message("5|U|1|2", registry));
+			queue.offer(new Message("1|F|2|1", registry));
+			queue.offer(new Message("2|F|3|2", registry));
+			queue.offer(new Message("3|F|3|1", registry));
+			queue.offer(new Message("4|F|1|2", registry));
+			queue.offer(new Message("5|U|1|2", registry));
 			
 			// priv
-			queue.add(new Message("6|P|2|1", registry));
-			queue.add(new Message("7|P|1|2", registry));
-			queue.add(new Message("8|P|2|3", registry));
+			queue.offer(new Message("6|P|2|1", registry));
+			queue.offer(new Message("7|P|1|2", registry));
+			queue.offer(new Message("8|P|2|3", registry));
 			
 			// status
-			queue.add(new Message("9|S|1", registry));
-			queue.add(new Message("10|S|2", registry));
-			queue.add(new Message("11|S|3", registry));
+			queue.offer(new Message("9|S|1", registry));
+			queue.offer(new Message("10|S|2", registry));
+			queue.offer(new Message("11|S|3", registry));
 
 			// broad
-			queue.add(new Message("12|B", registry));
+			queue.offer(new Message("12|B", registry));
 		} catch (Exception e){
 			e.printStackTrace();
 			fail("Unexpected Exception: " + e.getMessage());
 		}
 		
 		assertTrue(queue.size() == 12);
-		assertTrue(queue.peek().getNumber() == 1);
 		
 		MessageCollector collect = new MessageCollector(queue, registry, 4);
 		collect.start();

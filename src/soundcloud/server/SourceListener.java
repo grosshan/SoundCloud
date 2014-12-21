@@ -12,24 +12,62 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
-public class SourceListener extends Thread{
+public class SourceListener{
 
 	private MessageQueue queue;
+	private UserRegistry registry;
 	private ServerSocket servSocket;
 	private Socket socket;
+	private ArrayList<MyListener> listeners;
 	private int port;
 
+	private class MyListener extends Thread{
+		
+		private int id;
+		private SourceListener source;
+		
+		
+		public MyListener(SourceListener source, int id){
+			this.source = source;
+			this.id = id;
+		}
+		
+		@Override 
+		public void run(){
+			BufferedReader reader  = null;
+			String message = null;
+			try{
+				reader = new BufferedReader(new InputStreamReader(this.source.socket.getInputStream(),"UTF-8"));
+				while(!isInterrupted()){
+					synchronized(socket){
+						message = reader.readLine() + "\r\n";
+					}
+					this.source.queue.offer(new Message(message, registry), id);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+				this.interrupt();
+			}
+			
+		}
+	}
 	/**
 	 * Constructor. Will create a source listener with respect to the given queue and the given port.
 	 * @param queue queue, where messages should be stored.
 	 * @param port port, where the listener wants to listen to.
 	 * @throws IOException 
 	 */
-	public SourceListener(MessageQueue queue, int port) throws IOException{
+	public SourceListener(MessageQueue queue, UserRegistry registry, int port, int numPipes) throws IOException{
 		this.queue = queue;
+		this.registry = registry;
 		this.servSocket = new ServerSocket(port);
 		this.port = this.servSocket.getLocalPort();
+		this.listeners = new ArrayList<MyListener>(numPipes);
+		for(int i = 0; i < this.listeners.size(); i++){
+			this.listeners.set(i, new MyListener(this,i));
+		}
 	}
 
 	/**
@@ -44,31 +82,14 @@ public class SourceListener extends Thread{
 	 * Method to start the Executor. The Listener will read & parse an incoming message and store it into the
 	 * queue.
 	 */
-	@Override
-	public void run() {
+	public void start() {
 		try {
-			char[] buffer = new char[256];
-			StringBuffer message = new StringBuffer(64);
 
-			// open Socket
 			this.socket = servSocket.accept();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(),"UTF-8"));
-
-			while(!isInterrupted()){
-				// read some chars
-				int numChars = reader.read(buffer, 0, buffer.length);
-				
-				// now extract messages
-				for(int i = 0; i < numChars; i++){
-					message.append(buffer[i]);
-					
-					// end of message -> add to queue
-					if(buffer[i] == '\n'){
-						//queue.add(new Message(message.toString()));
-						message = new StringBuffer(64);
-					}
-				}
+			for(int i = 0; i < this.listeners.size(); i++){
+				this.listeners.get(i).start();
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
